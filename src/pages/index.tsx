@@ -1,10 +1,11 @@
 import type { NextPage } from "next";
 import Head from "next/head";
 import { trpc } from "../utils/trpc";
+import LoginButton from "./components/login-btn";
 
 const Home: NextPage = () => {
   const hello = trpc.useQuery(["example.hello", { text: "from tRPC" }]);
-
+  const secret = trpc.useQuery(["auth.getSecretMessage"]);
   return (
     <>
       <Head>
@@ -79,6 +80,10 @@ const Home: NextPage = () => {
         </div>
         <div className="pt-6 text-2xl text-blue-500 flex justify-center items-center w-full">
           {hello.data ? <p>{hello.data.greeting}</p> : <p>Loading..</p>}
+        </div>
+        <div>
+          <LoginButton />
+          <p>{secret.data ? secret.data : "There's no secret... 👀"}</p>
         </div>
       </div>
     </>
