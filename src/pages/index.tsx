@@ -6,6 +6,7 @@ import LoginButton from "./components/login-btn";
 const Home: NextPage = () => {
   const hello = trpc.useQuery(["example.hello", { text: "from tRPC" }]);
   const secret = trpc.useQuery(["auth.getSecretMessage"]);
+  
   return (
     <>
       <Head>

@@ -43,6 +43,14 @@ model Session {
     user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+model VerificationToken {
+    identifier String
+    token      String   @unique
+    expires    DateTime
+
+    @@unique([identifier, token])
+}
+
 model User {
     id            String    @id @default(cuid())
     name          String?
@@ -51,12 +59,16 @@ model User {
     image         String?
     accounts      Account[]
     sessions      Session[]
+    tree          Tree?
 }
 
-model VerificationToken {
-    identifier String
-    token      String   @unique
-    expires    DateTime
-
-    @@unique([identifier, token])
+model Tree {
+    id     String  @id @default(cuid())
+    userId String  @unique
+    user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+    slug   String  @unique
+    theme  String  @default("light")
+    image  String?
+    bio    String?
+    links  Json?
 }
