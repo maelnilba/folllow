@@ -6,7 +6,6 @@ import Image from "next/future/image";
 
 const Index: NextPage = () => {
   const { data: session } = useSession();
-
   return (
     <>
       <Head>
@@ -27,7 +26,9 @@ const Index: NextPage = () => {
             <div className="flex flew-row items-center justify-start space-x-10">
               {!session ? (
                 <Link href="/sign-in" passHref>
-                  <a className="btn btn-primary normal-case">Sign In</a>
+                  <a role="button" className="btn btn-primary normal-case">
+                    Sign In
+                  </a>
                 </Link>
               ) : (
                 <div className="flex flex-row space-x-8 items-center">
@@ -40,7 +41,7 @@ const Index: NextPage = () => {
                         tabIndex={0}
                         className="avatar w-12 hover:cursor-pointer"
                       >
-                        <Image
+                        <img
                           src={session.user.image}
                           className="w-auto h-auto mask mask-hexagon"
                         />
@@ -57,10 +58,10 @@ const Index: NextPage = () => {
                       tabIndex={0}
                       className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52"
                     >
-                      <li>
+                      <li role="button">
                         <a>Settings</a>
                       </li>
-                      <li onClick={() => signOut()}>
+                      <li role="button" onClick={() => signOut()}>
                         <a>Log out</a>
                       </li>
                     </ul>

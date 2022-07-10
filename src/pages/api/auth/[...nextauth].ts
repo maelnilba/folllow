@@ -9,11 +9,12 @@ import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { prisma } from "../../../server/db/client";
 // https://github.com/ndom91/next-auth-example-sign-in-page
 export const authOptions: NextAuthOptions = {
-  // Configure one or more authentication providers
-  // pages: {
-  //   signIn: "/auth/sign-in",
-  //   newUser: "/auth/new-user",
-  // },
+  debug: false,
+  pages: {
+    signIn: "/sign-in",
+    newUser: "/dashboard",
+    error: "/sign-error",
+  },
   adapter: PrismaAdapter(prisma),
   providers: [
     GithubProvider({
@@ -23,6 +24,13 @@ export const authOptions: NextAuthOptions = {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      authorization: {
+        params: {
+          prompt: "consent",
+          access_type: "offline",
+          response_type: "code",
+        },
+      },
     }),
     TwitterProvider({
       clientId: process.env.TWITTER_CLIENT_ID!,
