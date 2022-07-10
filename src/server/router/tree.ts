@@ -1,11 +1,11 @@
 import { createRouter } from "./context";
 import { z } from "zod";
 import { SocialMedias, Themes } from "../../utils/shared";
-import type { SocialMedia } from "../../utils/shared";
+import type { SocialMediaLink } from "../../utils/shared";
 import { TRPCError } from "@trpc/server";
 
 type getTreeJsonType = {
-  links: [SocialMedia];
+  links: [SocialMediaLink];
   bio: string;
   theme: string;
   image: string;
@@ -59,6 +59,23 @@ export const treeRouter = createRouter()
   })
   .query("getMyTree", {
     async resolve({ ctx }) {
+      // Which one is the best pratices to have ?
+      // const data = await ctx.prisma.user.findFirst({
+      //   where: {
+      //     id: ctx.session!.user!.id,
+      //   },
+      //   select: {
+      //     tree: {
+      //       select: {
+      //         slug: true,
+      //         links: true,
+      //         bio: true,
+      //         theme: true,
+      //         image: true,
+      //       },
+      //     },
+      //   },
+      // });
       return await ctx.prisma.tree.findUnique({
         where: {
           userId: ctx.session!.user!.id,

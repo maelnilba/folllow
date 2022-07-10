@@ -1,9 +1,9 @@
-export interface SocialMedia {
+export interface SocialMediaLink {
   id: number;
   media: typeof SocialMedias[number];
   url: string;
 }
-
+export type SocialMedia = typeof SocialMedias[number];
 export const SocialMedias = [
   "twitter",
   "twitch",

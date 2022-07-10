@@ -52,14 +52,16 @@ model VerificationToken {
 }
 
 model User {
-    id            String    @id @default(cuid())
+    id            String      @id @default(cuid())
     name          String?
-    email         String?   @unique
+    email         String?     @unique
     emailVerified DateTime?
     image         String?
     accounts      Account[]
     sessions      Session[]
-    tree          Tree?
+    tree          Tree[]
+    analytics     Analytics[]
+    withdraw      Withdraw?
 }
 
 model Tree {
@@ -71,4 +73,38 @@ model Tree {
     image  String?
     bio    String?
     links  Json?
+}
+
+model Withdraw {
+    id               String  @id @default(cuid())
+    userId           String  @unique
+    user             User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+    withdraw_enabled Boolean @default(false)
+}
+
+model Analytics {
+    id          String  @id @default(cuid())
+    userId      String  @unique
+    user        User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+    ads_enabled Boolean @default(true)
+    views       View[]
+    clicks      Click[]
+}
+
+model View {
+    id           Int       @id @default(autoincrement())
+    analyticsId  String
+    analytics    Analytics @relation(fields: [analyticsId], references: [id], onDelete: Cascade)
+    created_at   DateTime  @default(now())
+    slug         String
+    from_country String?
+    had_adblock  Boolean   @default(false)
+}
+
+model Click {
+    id          Int       @id @default(autoincrement())
+    analyticsId String
+    analytics   Analytics @relation(fields: [analyticsId], references: [id], onDelete: Cascade)
+    created_at  DateTime  @default(now())
+    element     String
 }

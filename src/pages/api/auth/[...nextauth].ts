@@ -4,9 +4,13 @@ import GithubProvider from "next-auth/providers/github";
 // Prisma adapter for NextAuth, optional and can be removed
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { prisma } from "../../../server/db/client";
-
+// https://github.com/ndom91/next-auth-example-sign-in-page
 export const authOptions: NextAuthOptions = {
   // Configure one or more authentication providers
+  // pages: {
+  //   signIn: "/auth/sign-in",
+  //   newUser: "/auth/new-user",
+  // },
   adapter: PrismaAdapter(prisma),
   providers: [
     GithubProvider({
