@@ -3,8 +3,19 @@ import { signOut, useSession } from "next-auth/react";
 import Head from "next/head";
 import Link from "next/link";
 import { trpc } from "utils/trpc";
+import { z } from "zod";
+import { useZorm } from "react-zorm";
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleUser } from "@fortawesome/free-solid-svg-icons";
+
+const FormSchema = z.object({
+  slug: z.string().min(3).max(20).regex(/^@/),
+});
+
+function ErrorMessage(props: { message: string }) {
+  return <div className="text-xs text-red-500">{props.message}</div>;
+}
 
 const Index: NextPage = () => {
   const { data: session, status: sessionStatus } = useSession();
@@ -16,6 +27,14 @@ const Index: NextPage = () => {
     isLoading: treeLoading,
     isError: treeError,
   } = trpc.useQuery(["auth.get-dashboard"]);
+
+  const zo = useZorm("signup", FormSchema, {
+    onValidSubmit(e) {
+      e.preventDefault();
+      alert("Form ok!\n" + JSON.stringify(e.data, null, 2));
+    },
+  });
+  const disabled = zo.validation?.success === false;
 
   return (
     <>
@@ -112,21 +131,32 @@ const Index: NextPage = () => {
                     <div className="text-2xl font-bold">
                       Create your tree first !
                     </div>
-                    <form
-                      className="flex flex-row space-x-4"
-                      onSubmit={(event) => {
-                        event.preventDefault();
-                        console.log(event);
-                      }}
-                    >
-                      <input
-                        type="text"
-                        placeholder="@your_nickname"
-                        className="input input-bordered w-full max-w-xs"
-                      />
-                      <button type="submit" className="btn normal-case">
-                        Create
-                      </button>
+                    <form ref={zo.ref}>
+                      <div className="flex flex-col space-y-1">
+                        <label htmlFor="slug_id" className="text-xs">
+                          Your slug
+                        </label>
+                        <div className="flex flex-row space-x-4">
+                          <input
+                            id="slug_id"
+                            type="text"
+                            name={zo.fields.slug()}
+                            placeholder="@your_nickname"
+                            className="input input-bordered w-full max-w-xs"
+                          />
+
+                          <button
+                            type="submit"
+                            className="btn normal-case"
+                            disabled={disabled}
+                          >
+                            Create
+                          </button>
+                        </div>
+                        {zo.errors.slug((e) => (
+                          <ErrorMessage message="Must start with an @, between 3-20 characters" />
+                        ))}
+                      </div>
                     </form>
                   </div>
                 )}
