@@ -4,7 +4,12 @@ import type {
   NextPage,
 } from "next";
 import Head from "next/head";
-import { getProviders, signIn } from "next-auth/react";
+import {
+  ClientSafeProvider,
+  getProviders,
+  LiteralUnion,
+  signIn,
+} from "next-auth/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faTwitter,
@@ -13,6 +18,9 @@ import {
   faDiscord,
   IconDefinition,
 } from "@fortawesome/free-brands-svg-icons";
+import { unstable_getServerSession } from "next-auth/next";
+import { authOptions } from "./api/auth/[...nextauth]";
+import { BuiltInProviderType } from "next-auth/providers";
 
 const providerIcons: { [key: string]: IconDefinition } = {
   GitHub: faGithub,
@@ -21,7 +29,12 @@ const providerIcons: { [key: string]: IconDefinition } = {
   Discord: faDiscord,
 };
 
-const Index: NextPage<ServerSideProps> = ({ providers }) => {
+const Index: NextPage<{
+  providers: Record<
+    LiteralUnion<BuiltInProviderType, string>,
+    ClientSafeProvider
+  > | null;
+}> = ({ providers }) => {
   if (!providers) return <div>No provider found!</div>;
   return (
     <>
@@ -62,6 +75,21 @@ const Index: NextPage<ServerSideProps> = ({ providers }) => {
 type ServerSideProps = InferGetServerSidePropsType<typeof getServerSideProps>;
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const providers = await getProviders();
+  const session = await unstable_getServerSession(
+    context.req,
+    context.res,
+    authOptions
+  );
+
+  if (session) {
+    return {
+      redirect: {
+        destination: "/dashboard",
+        permanent: false,
+      },
+    };
+  }
+
   return {
     props: { providers },
   };

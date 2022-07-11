@@ -15,7 +15,7 @@ const mediaRegex = new RegExp(SocialMedias.join("|"), "gi");
 const themeRegex = new RegExp(Themes.join("|"), "gi");
 
 export const treeRouter = createRouter()
-  .query("getLinkTree", {
+  .query("get-link-tree", {
     input: z.object({
       slug: z.string(),
     }),
@@ -33,7 +33,7 @@ export const treeRouter = createRouter()
       });
     },
   })
-  .query("checkSlug", {
+  .query("check-slug", {
     input: z.object({
       slug: z.string(),
     }),
@@ -57,40 +57,40 @@ export const treeRouter = createRouter()
     }
     return next();
   })
-  .query("getMyTree", {
+  .query("get-my-tree", {
     async resolve({ ctx }) {
       // Which one is the best pratices to have ?
-      // const data = await ctx.prisma.user.findFirst({
-      //   where: {
-      //     id: ctx.session!.user!.id,
-      //   },
-      //   select: {
-      //     tree: {
-      //       select: {
-      //         slug: true,
-      //         links: true,
-      //         bio: true,
-      //         theme: true,
-      //         image: true,
-      //       },
-      //     },
-      //   },
-      // });
-      return await ctx.prisma.tree.findUnique({
+      return await ctx.prisma.user.findFirst({
         where: {
-          userId: ctx.session!.user!.id,
+          id: ctx.session!.user!.id,
         },
         select: {
-          slug: true,
-          links: true,
-          bio: true,
-          theme: true,
-          image: true,
+          tree: {
+            select: {
+              slug: true,
+              links: true,
+              bio: true,
+              theme: true,
+              image: true,
+            },
+          },
         },
       });
+      // return await ctx.prisma.tree.findUnique({
+      //   where: {
+      //     userId: ctx.session!.user!.id,
+      //   },
+      //   select: {
+      //     slug: true,
+      //     links: true,
+      //     bio: true,
+      //     theme: true,
+      //     image: true,
+      //   },
+      // });
     },
   })
-  .mutation("createTree", {
+  .mutation("create-tree", {
     input: z.object({
       slug: z.string(),
     }),
@@ -103,7 +103,7 @@ export const treeRouter = createRouter()
       });
     },
   })
-  .mutation("postTree", {
+  .mutation("post-tree", {
     input: z.object({
       slug: z.string().optional(),
       bio: z.string().optional(),

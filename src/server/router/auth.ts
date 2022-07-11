@@ -1,4 +1,5 @@
 import { TRPCError } from "@trpc/server";
+import { z } from "zod";
 import { createRouter } from "./context";
 
 export const authRouter = createRouter()
@@ -13,7 +14,42 @@ export const authRouter = createRouter()
     if (!ctx.session) {
       throw new TRPCError({ code: "UNAUTHORIZED" });
     }
+    if (!ctx.session.user) {
+      throw new TRPCError({ code: "NOT_FOUND" });
+    }
     return next();
+  })
+  .query("get-user-info", {
+    async resolve({ ctx }) {
+      return await ctx.prisma.user.findFirst({
+        select: {
+          name: true,
+          image: true,
+        },
+        where: {
+          id: ctx.session!.user!.id,
+        },
+      });
+    },
+  })
+  .query("get-dashboard", {
+    async resolve({ ctx }) {
+      return await ctx.prisma.user.findFirst({
+        where: {
+          id: ctx.session!.user!.id,
+        },
+        select: {
+          tree: {
+            select: {
+              slug: true,
+              image: true,
+            },
+          },
+          analytics: true,
+          withdraw: true,
+        },
+      });
+    },
   })
   .query("getSecretMessage", {
     async resolve({ ctx }) {
