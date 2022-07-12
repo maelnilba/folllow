@@ -43,6 +43,7 @@ export const authRouter = createRouter()
             select: {
               slug: true,
               image: true,
+              bio: true,
             },
           },
           analytics: true,

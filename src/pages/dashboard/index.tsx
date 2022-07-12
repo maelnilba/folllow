@@ -1,12 +1,16 @@
 import type { NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
-import { trpc } from "utils/trpc";
+import { InferQueryOutput, trpc } from "utils/trpc";
 import { z } from "zod";
 import { useZorm } from "react-zorm";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCircleUser } from "@fortawesome/free-solid-svg-icons";
+import {
+  faCircleUser,
+  faLayerGroup,
+  faLink,
+} from "@fortawesome/free-solid-svg-icons";
 
 import { useRouter } from "next/router";
 
@@ -41,12 +45,16 @@ const Index: NextPage = () => {
                     <div className="avatar w-24">
                       <img
                         src={user.image}
-                        className="w-auto h-auto rounded-full"
+                        className="w-auto h-auto rounded-full mask mask-hexagon"
                       />
                     </div>
                   ) : (
                     <div className="avatar placeholder">
-                      <div className="bg-base-100 w-24 rounded-full"></div>
+                      <div
+                        className={`bg-base-100 w-24 rounded-full mask mask-hexagon ${
+                          userLoading && "animate-pulse"
+                        }`}
+                      ></div>
                     </div>
                   )}
                   <div className="grid grid-rows-3">
@@ -70,11 +78,14 @@ const Index: NextPage = () => {
             </div>
             <div className="flex flex-col">
               {dashboard && (
-                <div className="flex flex-col items-center p-6">
+                <div className="flex flex-col py-6">
                   {!dashboard.tree ? (
                     <DashboardCreate />
                   ) : (
-                    <div>Display tree + analytics card</div>
+                    <div className="flex flex-row space-x-4">
+                      <DashboardTree tree={dashboard.tree} />
+                      <DashboardAnalytics />
+                    </div>
                   )}
                 </div>
               )}
@@ -165,12 +176,62 @@ const DashboardCreate: React.FC = () => {
   );
 };
 
-const DashboardTree: React.FC = () => {
-  return <div>Tree card</div>;
+type DashboardTreeProps = Pick<
+  NonNullable<InferQueryOutput<"auth.get-dashboard">>,
+  "tree"
+>;
+
+const DashboardTree: React.FC<DashboardTreeProps> = (props) => {
+  return (
+    <div className="flex flex-row flex-1 items-center bg-base-200 p-6 border-solid border-inherit border-x-2 border-y-2 rounded-md ">
+      <div className="flex flex-1 flex-row items-center space-x-4">
+        {props.tree?.image ? (
+          <div className="avatar w-24">
+            <img
+              src={props.tree.image}
+              className="w-auto h-auto rounded-full"
+            />
+          </div>
+        ) : (
+          <div className="avatar placeholder">
+            <div className="bg-base-100 w-24 rounded-full"></div>
+          </div>
+        )}
+        <div className="">
+          <Link href={`/${props.tree?.slug || "dashboard"}`}>
+            <a className="text-xl font-bold hover:opacity-75">
+              {props.tree?.slug}
+            </a>
+          </Link>
+          <div>{props.tree?.bio || "No bio yet"}</div>
+        </div>
+      </div>
+      <div className="flex flex-col justify-center space-y-4">
+        <Link href="/dashboard/tree" passHref>
+          <a
+            role="button"
+            className="btn btn-outline justify-start btn-sm normal-case gap-2"
+          >
+            <FontAwesomeIcon icon={faLayerGroup} />
+            Manage
+          </a>
+        </Link>
+        <Link href="/dashboard/tree" passHref>
+          <a
+            role="button"
+            className="btn btn-outline justify-start btn-sm normal-case gap-2"
+          >
+            <FontAwesomeIcon icon={faLink} />
+            Link
+          </a>
+        </Link>
+      </div>
+    </div>
+  );
 };
 
 const DashboardAnalytics: React.FC = () => {
-  return <div>Analytics card</div>;
+  return <div className="flex flex-col flex-1"></div>;
 };
 
 //   type ServerSideProps = InferGetServerSidePropsType<typeof getServerSideProps>;
