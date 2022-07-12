@@ -3,6 +3,7 @@ import { z } from "zod";
 import { SocialMedias, Themes } from "../../utils/shared";
 import type { SocialMediaLink } from "../../utils/shared";
 import { TRPCError } from "@trpc/server";
+import { createCustomIssues } from "react-zorm";
 
 type getTreeJsonType = {
   links: [SocialMediaLink];
@@ -10,6 +11,10 @@ type getTreeJsonType = {
   theme: string;
   image: string;
 } | null;
+
+const createTreeSchema = z.object({
+  slug: z.string().min(3).max(20).regex(/^@/),
+});
 
 const mediaRegex = new RegExp(SocialMedias.join("|"), "gi");
 const themeRegex = new RegExp(Themes.join("|"), "gi");
@@ -33,12 +38,14 @@ export const treeRouter = createRouter()
       });
     },
   })
-  .query("check-slug", {
+  .mutation("check-slug", {
     input: z.object({
-      slug: z.string(),
+      slug: z.string().min(3).max(20).regex(/^@/),
     }),
     async resolve({ input, ctx }) {
-      return await ctx.prisma.tree.findUniqueOrThrow({
+      const issues = createCustomIssues(createTreeSchema);
+
+      const data = await ctx.prisma.tree.findUnique({
         select: {
           slug: true,
         },
@@ -46,6 +53,10 @@ export const treeRouter = createRouter()
           slug: input.slug,
         },
       });
+
+      if (data) issues.slug(`Slug ${input.slug} already exists.`);
+
+      return { issues: issues.toArray() };
     },
   })
   .middleware(async ({ ctx, next }) => {
@@ -60,39 +71,39 @@ export const treeRouter = createRouter()
   .query("get-my-tree", {
     async resolve({ ctx }) {
       // Which one is the best pratices to have ?
-      return await ctx.prisma.user.findFirst({
-        where: {
-          id: ctx.session!.user!.id,
-        },
-        select: {
-          tree: {
-            select: {
-              slug: true,
-              links: true,
-              bio: true,
-              theme: true,
-              image: true,
-            },
-          },
-        },
-      });
-      // return await ctx.prisma.tree.findUnique({
+      // return await ctx.prisma.user.findFirst({
       //   where: {
-      //     userId: ctx.session!.user!.id,
+      //     id: ctx.session!.user!.id,
       //   },
       //   select: {
-      //     slug: true,
-      //     links: true,
-      //     bio: true,
-      //     theme: true,
-      //     image: true,
+      //     tree: {
+      //       select: {
+      //         slug: true,
+      //         links: true,
+      //         bio: true,
+      //         theme: true,
+      //         image: true,
+      //       },
+      //     },
       //   },
       // });
+      return await ctx.prisma.tree.findUnique({
+        where: {
+          userId: ctx.session!.user!.id,
+        },
+        select: {
+          slug: true,
+          links: true,
+          bio: true,
+          theme: true,
+          image: true,
+        },
+      });
     },
   })
   .mutation("create-tree", {
     input: z.object({
-      slug: z.string(),
+      slug: z.string().min(3).max(20).regex(/^@/),
     }),
     async resolve({ input, ctx }) {
       return await ctx.prisma.tree.create({

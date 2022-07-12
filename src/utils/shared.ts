@@ -4,6 +4,7 @@ export interface SocialMediaLink {
   url: string;
 }
 export type SocialMedia = typeof SocialMedias[number];
+
 export const SocialMedias = [
   "twitter",
   "twitch",
@@ -19,7 +20,7 @@ export const SocialMedias = [
   "pinterest",
   "linkedin",
   "indeed",
-  "devianart",
+  "deviantart",
   "flickr",
   "discord",
   "wattpad",
