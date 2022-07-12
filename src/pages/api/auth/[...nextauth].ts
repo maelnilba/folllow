@@ -11,7 +11,7 @@ import { prisma } from "../../../server/db/client";
 export const authOptions: NextAuthOptions = {
   debug: false,
   pages: {
-    signIn: "/dashboard",
+    signIn: "/sign-in",
     newUser: "/dashboard",
     error: "/auth/error",
   },

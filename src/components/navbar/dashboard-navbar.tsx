@@ -37,7 +37,14 @@ export const DashboardNavbar = () => {
               <li role="button">
                 <a>Settings</a>
               </li>
-              <li role="button" onClick={() => signOut()}>
+              <li
+                role="button"
+                onClick={() =>
+                  signOut({
+                    callbackUrl: "/",
+                  })
+                }
+              >
                 <a>Log out</a>
               </li>
             </ul>
