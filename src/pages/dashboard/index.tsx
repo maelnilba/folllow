@@ -34,24 +34,24 @@ const Index: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <div className="flex flex-col min-h-screen">
-        <div className="flex flex-col px-24 space-y-4">
+      <div className="flex min-h-screen flex-col">
+        <div className="flex flex-col space-y-4 px-24">
           <DashboardNavbar />
           <main>
-            <div className="bg-base-200 p-6 border-solid border-inherit border-x-2 border-y-2 rounded-md flex flex-col">
+            <div className=" kard flex flex-col p-6">
               <div className="flex flex-row">
                 <div className="flex flex-1 flex-row space-x-6">
                   {user?.image ? (
                     <div className="avatar w-24">
                       <img
                         src={user.image}
-                        className="w-auto h-auto rounded-full mask mask-hexagon"
+                        className="mask mask-hexagon h-auto w-auto rounded-full"
                       />
                     </div>
                   ) : (
                     <div className="avatar placeholder">
                       <div
-                        className={`bg-base-100 w-24 rounded-full mask mask-hexagon ${
+                        className={`mask mask-hexagon w-24 rounded-full bg-base-100 ${
                           userLoading && "animate-pulse"
                         }`}
                       ></div>
@@ -67,7 +67,7 @@ const Index: NextPage = () => {
                   <Link href="/settings/account" passHref>
                     <a
                       role="button"
-                      className="btn btn-outline btn-sm normal-case gap-2"
+                      className="btn btn-outline btn-sm gap-2 normal-case"
                     >
                       <FontAwesomeIcon icon={faCircleUser} />
                       Account
@@ -183,18 +183,18 @@ type DashboardTreeProps = Pick<
 
 const DashboardTree: React.FC<DashboardTreeProps> = (props) => {
   return (
-    <div className="flex flex-row flex-1 items-center bg-base-200 p-6 border-solid border-inherit border-x-2 border-y-2 rounded-md ">
+    <div className="kard flex flex-1 flex-row items-center p-6 ">
       <div className="flex flex-1 flex-row items-center space-x-4">
         {props.tree?.image ? (
           <div className="avatar w-24">
             <img
               src={props.tree.image}
-              className="w-auto h-auto rounded-full"
+              className="h-auto w-auto rounded-full"
             />
           </div>
         ) : (
           <div className="avatar placeholder">
-            <div className="bg-base-100 w-24 rounded-full"></div>
+            <div className="w-24 rounded-full bg-base-100"></div>
           </div>
         )}
         <div className="">
@@ -210,7 +210,7 @@ const DashboardTree: React.FC<DashboardTreeProps> = (props) => {
         <Link href="/dashboard/tree" passHref>
           <a
             role="button"
-            className="btn btn-outline justify-start btn-sm normal-case gap-2"
+            className="btn btn-outline btn-sm justify-start gap-2 normal-case"
           >
             <FontAwesomeIcon icon={faLayerGroup} />
             Manage
@@ -219,7 +219,7 @@ const DashboardTree: React.FC<DashboardTreeProps> = (props) => {
         <Link href="/dashboard/tree" passHref>
           <a
             role="button"
-            className="btn btn-outline justify-start btn-sm normal-case gap-2"
+            className="btn btn-outline btn-sm justify-start gap-2 normal-case"
           >
             <FontAwesomeIcon icon={faLink} />
             Link
@@ -231,7 +231,7 @@ const DashboardTree: React.FC<DashboardTreeProps> = (props) => {
 };
 
 const DashboardAnalytics: React.FC = () => {
-  return <div className="flex flex-col flex-1"></div>;
+  return <div className="flex flex-1 flex-col"></div>;
 };
 
 //   type ServerSideProps = InferGetServerSidePropsType<typeof getServerSideProps>;

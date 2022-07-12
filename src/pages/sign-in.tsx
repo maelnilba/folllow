@@ -44,15 +44,15 @@ const Index: NextPage<{
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <div className="flex flex-col min-h-screen justify-center items-center">
+      <div className="flex min-h-screen flex-col items-center justify-center">
         <div className="">
           <div className="text-6xl font-bold">Folllow.</div>
         </div>
-        <div className="grid grid-cols-2 gap-4 m-20 bg-base-200 p-10 border-solid border-inherit border-x-2 border-y-2 rounded-md">
+        <div className="kard m-20 grid grid-cols-2 gap-4 p-10">
           {Object.values(providers).map((provider) => (
             <div key={provider.name}>
               <button
-                className="btn btn-outline gap-2 normal-case w-full"
+                className="btn btn-outline w-full gap-2 normal-case"
                 onClick={() =>
                   signIn(provider.id, {
                     callbackUrl: "http://localhost:3000/dashboard",

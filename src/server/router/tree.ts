@@ -1,16 +1,8 @@
 import { createRouter } from "./context";
 import { z } from "zod";
 import { SocialMedias, Themes } from "../../utils/shared";
-import type { SocialMediaLink } from "../../utils/shared";
 import { TRPCError } from "@trpc/server";
 import { createCustomIssues } from "react-zorm";
-
-type getTreeJsonType = {
-  links: [SocialMediaLink];
-  bio: string;
-  theme: string;
-  image: string;
-} | null;
 
 const createTreeSchema = z.object({
   slug: z.string().min(3).max(20).regex(/^@/),
@@ -97,6 +89,7 @@ export const treeRouter = createRouter()
           bio: true,
           theme: true,
           image: true,
+          ads_enabled: true,
         },
       });
     },
@@ -127,6 +120,7 @@ export const treeRouter = createRouter()
           url: z.string(),
         })
         .optional(),
+      ads_enabled: z.boolean().optional(),
     }),
     async resolve({ input, ctx }) {
       return await ctx.prisma.tree.update({

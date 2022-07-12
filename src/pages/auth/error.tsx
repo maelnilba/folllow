@@ -14,7 +14,7 @@ const Index: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <div className="flex flex-col min-h-screen justify-center items-center">
+      <div className="flex min-h-screen flex-col items-center justify-center">
         <div className="">
           <div className="text-6xl font-bold">Folllow.</div>
           <div className="text-2xl font-bold">Auth error.</div>

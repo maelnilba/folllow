@@ -68,14 +68,15 @@ model User {
 }
 
 model Tree {
-    id     String  @id @default(cuid())
-    userId String  @unique
-    user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-    slug   String  @unique
-    theme  String  @default("light")
-    image  String?
-    bio    String?
-    links  Json?
+    id          String  @id @default(cuid())
+    userId      String  @unique
+    user        User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+    slug        String  @unique
+    theme       String  @default("light")
+    image       String?
+    bio         String?
+    links       Json?
+    ads_enabled Boolean @default(true)
 }
 
 model Withdraw {
@@ -86,12 +87,11 @@ model Withdraw {
 }
 
 model Analytics {
-    id          String  @id @default(cuid())
-    userId      String  @unique
-    user        User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-    ads_enabled Boolean @default(true)
-    views       View[]
-    clicks      Click[]
+    id     String  @id @default(cuid())
+    userId String  @unique
+    user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+    views  View[]
+    clicks Click[]
 }
 
 model View {
