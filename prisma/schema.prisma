@@ -77,6 +77,8 @@ model Tree {
     bio         String?
     links       Json?
     ads_enabled Boolean @default(true)
+
+    @@index([userId])
 }
 
 model Withdraw {
@@ -84,6 +86,8 @@ model Withdraw {
     userId           String  @unique
     user             User    @relation(fields: [userId], references: [id], onDelete: Cascade)
     withdraw_enabled Boolean @default(false)
+
+    @@index([userId])
 }
 
 model Analytics {
@@ -92,6 +96,8 @@ model Analytics {
     user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
     views  View[]
     clicks Click[]
+
+    @@index([userId])
 }
 
 model View {
@@ -102,6 +108,8 @@ model View {
     slug         String
     from_country String?
     had_adblock  Boolean   @default(false)
+
+    @@index([analyticsId])
 }
 
 model Click {
@@ -110,4 +118,6 @@ model Click {
     analytics   Analytics @relation(fields: [analyticsId], references: [id], onDelete: Cascade)
     created_at  DateTime  @default(now())
     element     String
+
+    @@index([analyticsId])
 }

@@ -7,9 +7,9 @@ import Head from "next/head";
 import Link from "next/link";
 import { SocialMediaLink, Themes } from "utils/shared";
 import { trpc } from "utils/trpc";
-import { useState } from "react";
-import { MyDnd } from "@components/drag-and-drop-list/vertical";
+import { useMemo, useState } from "react";
 import DraggableList from "@components/draggable-list";
+import { MyCombobox } from "@components/combobox";
 
 function parsePrisma<T>(json: Prisma.JsonValue) {
   return JSON.parse(json as string) as T;
@@ -24,6 +24,14 @@ const Index: NextPage = () => {
   } = trpc.useQuery(["tree.get-my-tree"]);
 
   const postTree = trpc.useMutation(["tree.post-tree"]);
+
+  const links = useMemo(
+    () =>
+      tree?.links
+        ? parsePrisma<SocialMediaLink[]>(tree?.links)
+        : ([] as SocialMediaLink[]),
+    [tree]
+  );
 
   return (
     <>
@@ -42,8 +50,13 @@ const Index: NextPage = () => {
                 <div className="flex flex-row">
                   <div className="flex flex-1 flex-col">
                     {/* <code>{JSON.stringify(tree, null, 2)}</code> */}
-                    <DraggableList />
-                    <MyDnd />
+                    <MyCombobox />
+                    <DraggableList
+                      items={links}
+                      renderItem={(item) => {
+                        return <div>Prout</div>;
+                      }}
+                    />
                   </div>
                   <div className="flex flex-col space-y-4">
                     <div className="kard flex flex-row items-center justify-between p-6 ">
@@ -82,10 +95,11 @@ const Index: NextPage = () => {
                           <div className="flex flex-col">
                             <label className="text-xs">Your slug:</label>
                             <input
+                              className="input input-bordered w-full max-w-xs"
                               type="text"
                               placeholder="@your_nickname"
                               value={tree.slug}
-                              className="input input-bordered w-full max-w-xs"
+                              onChange={() => {}}
                             />
                           </div>
                           <div className="flex flex-col">
@@ -94,6 +108,7 @@ const Index: NextPage = () => {
                               className="textarea textarea-bordered"
                               placeholder="Bio"
                               value={tree.bio || ""}
+                              onChange={() => {}}
                             ></textarea>
                           </div>
                         </div>
@@ -104,6 +119,7 @@ const Index: NextPage = () => {
                       <div className="rounded-box grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2">
                         {Themes.map((theme) => (
                           <div
+                            key={theme}
                             onClick={(event) => {
                               event.stopPropagation();
                               setDataTheme(theme);

@@ -59,23 +59,6 @@ export const treeRouter = createRouter()
   })
   .query("get-my-tree", {
     async resolve({ ctx }) {
-      // Which one is the best pratices to have ?
-      // return await ctx.prisma.user.findFirst({
-      //   where: {
-      //     id: ctx.session!.user!.id,
-      //   },
-      //   select: {
-      //     tree: {
-      //       select: {
-      //         slug: true,
-      //         links: true,
-      //         bio: true,
-      //         theme: true,
-      //         image: true,
-      //       },
-      //     },
-      //   },
-      // });
       return await ctx.prisma.tree.findUnique({
         where: {
           userId: ctx.session!.user!.id,
@@ -111,11 +94,13 @@ export const treeRouter = createRouter()
       theme: z.enum(Themes).optional(),
       image: z.string().optional(),
       links: z
-        .object({
-          id: z.number(),
-          media: z.enum(SocialMedias).optional(),
-          url: z.string(),
-        })
+        .array(
+          z.object({
+            id: z.number().nonnegative(),
+            media: z.enum(SocialMedias),
+            url: z.string().min(1),
+          })
+        )
         .optional(),
       ads_enabled: z.boolean().optional(),
     }),
