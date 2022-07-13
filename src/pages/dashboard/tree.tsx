@@ -5,9 +5,10 @@ import type { Prisma } from "@prisma/client";
 import type { NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
-import { useState } from "react";
 import { SocialMediaLink, Themes } from "utils/shared";
 import { trpc } from "utils/trpc";
+import { useState } from "react";
+import { MyDnd } from "@components/drag-and-drop-list/Vertical";
 
 function parsePrisma<T>(json: Prisma.JsonValue) {
   return JSON.parse(json as string) as T;
@@ -39,7 +40,8 @@ const Index: NextPage = () => {
               <div className="flex flex-col">
                 <div className="flex flex-row">
                   <div className="flex flex-1 flex-col">
-                    <code>{JSON.stringify(tree, null, 2)}</code>
+                    {/* <code>{JSON.stringify(tree, null, 2)}</code> */}
+                    <MyDnd />
                   </div>
                   <div className="flex flex-col space-y-4">
                     <div className="kard flex flex-row items-center justify-between p-6 ">

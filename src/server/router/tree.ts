@@ -8,9 +8,6 @@ const createTreeSchema = z.object({
   slug: z.string().min(3).max(20).regex(/^@/),
 });
 
-const mediaRegex = new RegExp(SocialMedias.join("|"), "gi");
-const themeRegex = new RegExp(Themes.join("|"), "gi");
-
 export const treeRouter = createRouter()
   .query("get-link-tree", {
     input: z.object({
@@ -111,12 +108,12 @@ export const treeRouter = createRouter()
     input: z.object({
       slug: z.string().optional(),
       bio: z.string().optional(),
-      theme: z.string().regex(themeRegex).optional(),
+      theme: z.enum(Themes).optional(),
       image: z.string().optional(),
       links: z
         .object({
           id: z.number(),
-          media: z.string().regex(mediaRegex),
+          media: z.enum(SocialMedias).optional(),
           url: z.string(),
         })
         .optional(),
