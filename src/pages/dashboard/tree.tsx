@@ -8,7 +8,8 @@ import Link from "next/link";
 import { SocialMediaLink, Themes } from "utils/shared";
 import { trpc } from "utils/trpc";
 import { useState } from "react";
-import { MyDnd } from "@components/drag-and-drop-list/Vertical";
+import { MyDnd } from "@components/drag-and-drop-list/vertical";
+import DraggableList from "@components/draggable-list";
 
 function parsePrisma<T>(json: Prisma.JsonValue) {
   return JSON.parse(json as string) as T;
@@ -41,6 +42,7 @@ const Index: NextPage = () => {
                 <div className="flex flex-row">
                   <div className="flex flex-1 flex-col">
                     {/* <code>{JSON.stringify(tree, null, 2)}</code> */}
+                    <DraggableList />
                     <MyDnd />
                   </div>
                   <div className="flex flex-col space-y-4">
