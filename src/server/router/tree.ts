@@ -49,19 +49,21 @@ export const treeRouter = createRouter()
     },
   })
   .middleware(async ({ ctx, next }) => {
-    if (!ctx.session) {
+    if (!ctx.session || !ctx.session.user) {
       throw new TRPCError({ code: "UNAUTHORIZED" });
     }
-    if (!ctx.session.user) {
-      throw new TRPCError({ code: "NOT_FOUND" });
-    }
-    return next();
+    return next({
+      ctx: {
+        ...ctx,
+        session: { ...ctx.session, user: ctx.session.user },
+      },
+    });
   })
   .query("get-my-tree", {
     async resolve({ ctx }) {
       return await ctx.prisma.tree.findUnique({
         where: {
-          userId: ctx.session!.user!.id,
+          userId: ctx.session.user.id,
         },
         select: {
           slug: true,
@@ -82,7 +84,7 @@ export const treeRouter = createRouter()
       return await ctx.prisma.tree.create({
         data: {
           slug: input.slug,
-          userId: ctx.session!.user!.id,
+          userId: ctx.session.user.id,
         },
       });
     },
@@ -110,7 +112,7 @@ export const treeRouter = createRouter()
           ...input,
         },
         where: {
-          userId: ctx.session!.user!.id,
+          userId: ctx.session.user.id,
         },
       });
     },

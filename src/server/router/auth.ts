@@ -9,15 +9,15 @@ export const authRouter = createRouter()
     },
   })
   .middleware(async ({ ctx, next }) => {
-    // Any queries or mutations after this middleware will
-    // raise an error unless there is a current session
-    if (!ctx.session) {
+    if (!ctx.session || !ctx.session.user) {
       throw new TRPCError({ code: "UNAUTHORIZED" });
     }
-    if (!ctx.session.user) {
-      throw new TRPCError({ code: "NOT_FOUND" });
-    }
-    return next();
+    return next({
+      ctx: {
+        ...ctx,
+        session: { ...ctx.session, user: ctx.session.user },
+      },
+    });
   })
   .query("get-user-info", {
     async resolve({ ctx }) {
@@ -27,7 +27,7 @@ export const authRouter = createRouter()
           image: true,
         },
         where: {
-          id: ctx.session!.user!.id,
+          id: ctx.session.user.id,
         },
       });
     },
@@ -36,7 +36,7 @@ export const authRouter = createRouter()
     async resolve({ ctx }) {
       return await ctx.prisma.user.findFirst({
         where: {
-          id: ctx.session!.user!.id,
+          id: ctx.session.user.id,
         },
         select: {
           tree: {
@@ -50,10 +50,5 @@ export const authRouter = createRouter()
           withdraw: true,
         },
       });
-    },
-  })
-  .query("getSecretMessage", {
-    async resolve({ ctx }) {
-      return "You are logged in and can see this secret message!";
     },
   });
