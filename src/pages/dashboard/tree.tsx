@@ -5,15 +5,45 @@ import type { Prisma } from "@prisma/client";
 import type { NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
-import { SocialMediaLink, Themes } from "utils/shared";
+import { SocialMediaLink, SocialMedias, Themes } from "utils/shared";
 import { trpc } from "utils/trpc";
 import { useMemo, useState } from "react";
 import DraggableList from "@components/draggable-list";
-import { MyCombobox } from "@components/combobox";
+import { SocialMediaCombobox } from "@components/combobox";
+import { z } from "zod";
+import { useZorm } from "react-zorm";
 
-function parsePrisma<T>(json: Prisma.JsonValue) {
-  return JSON.parse(json as string) as T;
+function parsePrisma<T>(json: Prisma.JsonValue): T {
+  if (typeof json === "string") {
+    return JSON.parse(json);
+  } else return JSON.parse(JSON.stringify(json));
 }
+
+const postTreeSchema = z.object({
+  slug: z.string().optional(),
+  bio: z.string().optional(),
+  theme: z.enum(Themes).optional(),
+  image: z.string().optional(),
+  links: z
+    .array(
+      z.object({
+        id: z.string().transform((arg) => parseInt(arg)),
+        media: z.enum(SocialMedias),
+        url: z.string().min(1),
+      })
+    )
+    .optional(),
+  list: z
+    .array(
+      z.object({
+        id: z.string(),
+        media: z.enum(SocialMedias),
+        url: z.string(),
+      })
+    )
+    .optional(),
+  ads_enabled: z.string().optional().transform(Boolean),
+});
 
 const Index: NextPage = () => {
   const [dataTheme, setDataTheme] = useState("light");
@@ -24,6 +54,7 @@ const Index: NextPage = () => {
   } = trpc.useQuery(["tree.get-my-tree"]);
 
   const postTree = trpc.useMutation(["tree.post-tree"]);
+  const checkSlug = trpc.useMutation(["tree.check-slug"]);
 
   const links = useMemo(
     () =>
@@ -32,6 +63,15 @@ const Index: NextPage = () => {
         : ([] as SocialMediaLink[]),
     [tree]
   );
+
+  const zo = useZorm("post-tree", postTreeSchema, {
+    customIssues: checkSlug.data?.issues,
+    onValidSubmit(e) {
+      e.preventDefault();
+      alert(JSON.stringify(e.data, null, 2));
+      // postTree.mutate(e.data);
+    },
+  });
 
   return (
     <>
@@ -46,15 +86,35 @@ const Index: NextPage = () => {
           <DashboardNavbar />
           <main>
             {tree && (
-              <div className="flex flex-col">
+              <form className="flex flex-col" ref={zo.ref}>
                 <div className="flex flex-row">
                   <div className="flex flex-1 flex-col">
-                    {/* <code>{JSON.stringify(tree, null, 2)}</code> */}
-                    <MyCombobox />
                     <DraggableList
                       items={links}
-                      renderItem={(item) => {
-                        return <div>Prout</div>;
+                      renderItem={(item, index) => {
+                        return (
+                          <div className="flex w-full flex-row items-center space-x-2">
+                            <div className="flex">
+                              <input
+                                type="hidden"
+                                value={index}
+                                name={zo.fields.links(item.id - 1).id()}
+                              />
+
+                              <SocialMediaCombobox
+                                name={zo.fields.links(item.id - 1).media()}
+                                defaultValue={item.media}
+                              />
+                            </div>
+                            <input
+                              name={zo.fields.links(item.id - 1).url()}
+                              defaultValue={item.url}
+                              type="text"
+                              placeholder="your link"
+                              className="input input-bordered w-full"
+                            />
+                          </div>
+                        );
                       }}
                     />
                   </div>
@@ -71,7 +131,11 @@ const Index: NextPage = () => {
                           Live Preview
                         </a>
                       </Link>
-                      <button className="btn gap-2 normal-case">
+                      <button
+                        type="submit"
+                        disabled={zo.validation?.success === false}
+                        className="btn gap-2 normal-case"
+                      >
                         Save changes
                       </button>
                     </div>
@@ -98,8 +162,8 @@ const Index: NextPage = () => {
                               className="input input-bordered w-full max-w-xs"
                               type="text"
                               placeholder="@your_nickname"
-                              value={tree.slug}
-                              onChange={() => {}}
+                              defaultValue={tree.slug}
+                              name={zo.fields.slug()}
                             />
                           </div>
                           <div className="flex flex-col">
@@ -107,16 +171,21 @@ const Index: NextPage = () => {
                             <textarea
                               className="textarea textarea-bordered"
                               placeholder="Bio"
-                              value={tree.bio || ""}
-                              onChange={() => {}}
+                              defaultValue={tree.bio || ""}
+                              name={zo.fields.bio()}
                             ></textarea>
                           </div>
                         </div>
                       </div>
                     </div>
-                    <div className="kard flex flex-col space-y-4 bg-base-200 p-6">
+                    <div className="kard flex flex-col space-y-4 p-6">
                       <div className="text-2xl font-bold">Themes</div>
                       <div className="rounded-box grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2">
+                        <input
+                          type="hidden"
+                          value={dataTheme}
+                          name={zo.fields.theme()}
+                        />
                         {Themes.map((theme) => (
                           <div
                             key={theme}
@@ -125,7 +194,9 @@ const Index: NextPage = () => {
                               setDataTheme(theme);
                             }}
                             data-theme={theme}
-                            className="overflow-hidden rounded-lg border border-base-content/20 outline-2 outline-offset-2 outline-base-content hover:border-base-content/40"
+                            className={`${
+                              dataTheme === theme ? "ring-2" : ""
+                            } overflow-hidden rounded-lg border border-base-content/20 outline-2 outline-offset-2 outline-base-content ring-primary hover:border-base-content/40`}
                           >
                             <div className="w-full cursor-pointer bg-base-100 font-sans text-base-content">
                               <div className="grid grid-cols-5 grid-rows-3">
@@ -164,9 +235,24 @@ const Index: NextPage = () => {
                         ))}
                       </div>
                     </div>
+                    <div className="kard space-y-4 p-2">
+                      <div className="form-control">
+                        <label className="label cursor-pointer">
+                          <span className="label-text font-bold">
+                            Enable Ads
+                          </span>
+                          <input
+                            type="checkbox"
+                            name={zo.fields.ads_enabled()}
+                            defaultChecked={tree.ads_enabled || true}
+                            className="checkbox"
+                          />
+                        </label>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </form>
             )}
           </main>
         </div>

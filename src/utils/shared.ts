@@ -26,6 +26,7 @@ export const SocialMedias = [
   "wattpad",
   "soundcloud",
   "spotify",
+  "patreon",
 ] as const;
 
 export type Theme = typeof Themes[number];

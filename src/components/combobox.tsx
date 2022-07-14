@@ -1,49 +1,55 @@
-import { Fragment, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { Combobox, Transition } from "@headlessui/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCheck, faSearch } from "@fortawesome/free-solid-svg-icons";
+import { faCaretDown } from "@fortawesome/free-solid-svg-icons";
+import {
+  SocialMediasComponents,
+  SocialMediasType,
+} from "./social-media-component";
+import { SocialMedia } from "utils/shared";
 
-type People = {
-  id: number;
+interface SocialMediaComboboxProps {
   name: string;
-};
-const people: People[] = [
-  { id: 1, name: "Wade Cooper" },
-  { id: 2, name: "Arlene Mccoy" },
-  { id: 3, name: "Devon Webb" },
-  { id: 4, name: "Tom Cook" },
-  { id: 5, name: "Tanya Fox" },
-  { id: 6, name: "Hellen Schmidt" },
-];
+  defaultValue?: SocialMedia;
+}
 
-export function MyCombobox() {
-  const [selected, setSelected] = useState<People | null>(null);
+export function SocialMediaCombobox(props: SocialMediaComboboxProps) {
+  const [selected, setSelected] = useState<SocialMediasType[number]>(
+    SocialMediasComponents.find(
+      (socialMedia) => socialMedia.handle === props.defaultValue
+    ) || SocialMediasComponents[0]!
+  );
+
   const [query, setQuery] = useState("");
 
-  const filteredPeople =
-    query === ""
-      ? people
-      : people.filter((person) =>
-          person.name
-            .toLowerCase()
-            .replace(/\s+/g, "")
-            .includes(query.toLowerCase().replace(/\s+/g, ""))
-        );
+  const filteredMedias = useMemo(
+    () =>
+      query === ""
+        ? SocialMediasComponents
+        : SocialMediasComponents.filter((socialMedia) =>
+            socialMedia.name
+              .toLowerCase()
+              .replace(/\s+/g, "")
+              .includes(query.toLowerCase().replace(/\s+/g, ""))
+          ),
+    [query, SocialMediasComponents]
+  );
 
   return (
-    <div className="relative top-0 w-full p-4">
+    <div className="relative top-0  w-full p-1">
+      <input type="hidden" value={selected.handle} name={props.name} />
       <Combobox value={selected} onChange={setSelected}>
-        <div className="relative mt-1">
+        <div className="relative">
           <div className="relative w-full cursor-default rounded-lg text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-base-content focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-teal-300 sm:text-sm">
             <Combobox.Input
-              className=" input input-bordered w-full"
-              displayValue={(person: People) => person?.name}
-              placeholder="Placeholder"
+              className="input input-bordered w-full"
+              displayValue={(media: SocialMediasType[number]) => media?.name}
+              placeholder="Social media"
               onChange={(event) => setQuery(event.target.value)}
             />
             <Combobox.Button className="absolute inset-y-0 right-0 flex items-center pr-2">
               <FontAwesomeIcon
-                icon={faSearch}
+                icon={faCaretDown}
                 className="h-5 w-5"
                 aria-hidden="true"
               />
@@ -56,41 +62,36 @@ export function MyCombobox() {
             leaveTo="opacity-0"
             afterLeave={() => setQuery("")}
           >
-            <Combobox.Options className="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-base-200 py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-              {filteredPeople.length === 0 && query !== "" ? (
+            <Combobox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-base-200 py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+              {filteredMedias.length === 0 && query !== "" ? (
                 <div className="relative cursor-default select-none py-2 px-4 ">
                   Nothing found.
                 </div>
               ) : (
-                filteredPeople.map((person) => (
+                filteredMedias.map((media) => (
                   <Combobox.Option
-                    key={person.id}
+                    key={media.handle}
                     className={({ active }) =>
-                      `relative cursor-default select-none py-2 pl-10 pr-4 ${
+                      `relative cursor-default select-none py-2 pl-4 pr-4 ${
                         active ? "bg-base-300" : ""
                       }`
                     }
-                    value={person}
+                    value={media}
                   >
                     {({ selected }) => (
-                      <>
+                      <div className="flex-rows flex items-center justify-between space-x-2">
+                        <FontAwesomeIcon
+                          icon={media.icon}
+                          className="flex items-center justify-center"
+                        />
                         <span
                           className={`block truncate ${
-                            selected ? "font-medium" : "font-normal"
+                            selected ? "font-bold" : "font-normal"
                           }`}
                         >
-                          {person.name}
+                          {media.name}
                         </span>
-                        {selected ? (
-                          <span className="absolute inset-y-0 left-0 flex items-center pl-3">
-                            <FontAwesomeIcon
-                              icon={faCheck}
-                              className="h-5 w-5"
-                              aria-hidden="true"
-                            />
-                          </span>
-                        ) : null}
-                      </>
+                      </div>
                     )}
                   </Combobox.Option>
                 ))

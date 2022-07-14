@@ -3,16 +3,15 @@ import {
   Reorder,
   useDragControls,
   useMotionValue,
-  animate,
   MotionValue,
   AnimatePresence,
 } from "framer-motion";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faGripVertical,
+  faGripLines,
   faPlusCircle,
-  faXmarkSquare,
+  faSquareXmark,
 } from "@fortawesome/free-solid-svg-icons";
 
 function removeItem<T>([...arr]: T[], item: T) {
@@ -21,11 +20,7 @@ function removeItem<T>([...arr]: T[], item: T) {
   return arr;
 }
 
-const inactiveShadow = "0px 0px 0px rgba(0,0,0,0.8)";
-
-export function useRaisedShadow(value: MotionValue<number>) {
-  const boxShadow = useMotionValue(inactiveShadow);
-
+export function useGrabbing(value: MotionValue<number>) {
   useEffect(() => {
     let isActive = false;
     value.onChange((latest) => {
@@ -33,58 +28,68 @@ export function useRaisedShadow(value: MotionValue<number>) {
       if (latest !== 0) {
         isActive = true;
         if (isActive !== wasActive) {
-          animate(boxShadow, "5px 5px 10px rgba(0,0,0,0.3)");
+          document.body.style.cursor = "grabbing";
         }
       } else {
         isActive = false;
         if (isActive !== wasActive) {
-          animate(boxShadow, inactiveShadow);
+          document.body.style.cursor = "";
         }
       }
     });
-  }, [value, boxShadow]);
-
-  return boxShadow;
+    return () => {
+      document.body.style.cursor = "";
+    };
+  }, [value]);
 }
 
 interface DraggableList<T> {
   items: T[];
-  renderItem: (item: T) => React.ReactNode;
+  renderItem: (item: T, index: number) => React.ReactNode;
 }
+
+type ContainsId<Arg> = Arg extends { id: number } ? Arg : never;
 
 export default function DraggableList<T>({
   items,
   renderItem,
-}: DraggableList<T extends { id: number } ? T : never>) {
+}: DraggableList<ContainsId<T>>) {
   const [list, setList] = useState(items);
   const remove = (item: typeof list[number]) => {
     setList(removeItem(items, item));
   };
   const add = () => {
-    setList([{ id: list.length + 1 } as any, ...list]);
+    setList([{ id: list.length + 1 } as typeof list[number], ...list]);
   };
 
   return (
-    <div className="flex flex-col p-4 ">
+    <div className="flex flex-col p-4">
       <Reorder.Group
         axis="y"
         values={list}
         onReorder={setList}
-        layoutScroll
-        style={{ overflowY: "scroll" }}
-        className="flex w-full flex-col items-center space-y-4"
+        // layoutScroll
+        // style={{ overflowY: "scroll" }}
+        className="flex w-full flex-col items-center space-y-4 p-6"
       >
         <div className="flex">
-          <button className="btn gap-2 normal-case" onClick={() => add()}>
-            <FontAwesomeIcon icon={faPlusCircle} />
+          <button
+            type="button"
+            className="btn gap-2 normal-case"
+            onClick={(event) => {
+              event.stopPropagation();
+              add();
+            }}
+          >
+            <FontAwesomeIcon className="text-2xl" icon={faPlusCircle} />
             New one
           </button>
         </div>
 
         <AnimatePresence initial={false}>
-          {list.map((item) => (
+          {list.map((item, index) => (
             <Item key={item.id} item={item} removeItem={remove}>
-              {renderItem(item)}
+              {renderItem(item, index)}
             </Item>
           ))}
         </AnimatePresence>
@@ -98,45 +103,48 @@ interface ItemProps<T> {
   children: React.ReactNode;
   removeItem(item: T): void;
 }
-function Item<T>({
-  item,
-  children,
-  removeItem,
-}: ItemProps<T extends { id: number } ? T : never>) {
+function Item<T>({ item, children, removeItem }: ItemProps<ContainsId<T>>) {
   const y = useMotionValue(0);
-  const boxShadow = useRaisedShadow(y);
+  useGrabbing(y);
   const dragControls = useDragControls();
 
   return (
     <Reorder.Item
       value={item}
       id={"" + item.id}
-      style={{ boxShadow, y }}
+      style={{ y }}
       dragListener={false}
       dragControls={dragControls}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="kard flex w-full flex-row space-x-2 p-6"
+      whileDrag={{
+        scale: 1.05,
+        boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1)",
+      }}
+      className="kard flex w-full flex-row space-x-2 p-6 pr-2"
     >
       <div
-        className="flex flex-col items-center justify-center"
+        className="mr-4 flex flex-col items-center justify-center"
         onPointerDown={(event) => dragControls.start(event)}
       >
         <FontAwesomeIcon
-          icon={faGripVertical}
+          icon={faGripLines}
           className="text-2xl hover:cursor-grab active:cursor-grabbing"
         />
       </div>
       <div className="flex flex-grow">{children}</div>
       <div
-        className="flex flex-col items-start justify-center"
+        className="flex items-center justify-center"
         onClick={(event) => {
           event.stopPropagation();
           removeItem(item);
         }}
       >
-        <FontAwesomeIcon icon={faXmarkSquare} className="text-xl" />
+        <FontAwesomeIcon
+          icon={faSquareXmark}
+          className="text-2xl hover:cursor-pointer hover:opacity-50"
+        />
       </div>
     </Reorder.Item>
   );

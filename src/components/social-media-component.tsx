@@ -5,6 +5,7 @@ import {
   faFlickr,
   faInstagram,
   faLinkedin,
+  faPatreon,
   faPinterest,
   faSnapchat,
   faSoundcloud,
@@ -18,109 +19,118 @@ import {
   IconDefinition,
 } from "@fortawesome/free-brands-svg-icons";
 import { faLink } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { SocialMedia } from "utils/shared";
 
-interface SocialMediaButtonProps {
-  media: SocialMedia;
-}
+export type SocialMediasType = readonly {
+  handle: SocialMedia;
+  name: string;
+  icon: IconDefinition;
+}[];
 
-export const SocialMediaButton: React.FC<SocialMediaButtonProps> = (props) => {
-  const media = SocialMediasComponents[props.media];
-  return (
-    <div className="btn gap-2">
-      <FontAwesomeIcon icon={media.icon} />
-      {media.name}
-    </div>
-  );
-};
-
-type SocialMediasType = {
-  [key in SocialMedia]: {
-    name: string;
-    icon: IconDefinition;
-  };
-};
-
-const SocialMediasComponents: SocialMediasType = {
-  twitter: {
+export const SocialMediasComponents: SocialMediasType = [
+  {
+    handle: "twitter",
     name: "Twitter",
     icon: faTwitter,
   },
-  twitch: {
+  {
+    handle: "twitch",
     name: "Twitch",
     icon: faTwitch,
   },
-  facebook: {
+  {
+    handle: "facebook",
     name: "Facebook",
     icon: faFacebook,
   },
-  onlyfans: {
+  {
+    handle: "onlyfans",
     name: "Onlyfans",
     icon: faLink,
   },
-  mym: {
+  {
+    handle: "mym",
     name: "Mym",
     icon: faLink,
   },
-  youtube: {
+  {
+    handle: "youtube",
     name: "YouTube",
     icon: faYoutube,
   },
-  vimeo: {
+  {
+    handle: "patreon",
+    name: "Patreon",
+    icon: faPatreon,
+  },
+  {
+    handle: "vimeo",
     name: "Vimeo",
     icon: faVimeo,
   },
-  tiktok: {
+  {
+    handle: "tiktok",
     name: "TikTok",
     icon: faTiktok,
   },
-  instagram: {
+  {
+    handle: "instagram",
     name: "Instagram",
     icon: faInstagram,
   },
-  tumblr: {
+  {
+    handle: "tumblr",
     name: "Tumblr",
     icon: faTumblr,
   },
-  snapchat: {
+  {
+    handle: "snapchat",
     name: "Snapchat",
     icon: faSnapchat,
   },
-  pinterest: {
+  {
+    handle: "pinterest",
     name: "Pinterest",
     icon: faPinterest,
   },
-  linkedin: {
+  {
+    handle: "linkedin",
     name: "Linkedin",
     icon: faLinkedin,
   },
-  indeed: {
+  {
+    handle: "indeed",
     name: "Indeed",
     icon: faLink,
   },
-  deviantart: {
+  {
+    handle: "deviantart",
     name: "DevianArt",
     icon: faDeviantart,
   },
-  flickr: {
+  {
+    handle: "flickr",
     name: "Flickr",
     icon: faFlickr,
   },
-  discord: {
+  {
+    handle: "discord",
     name: "Discord",
     icon: faDiscord,
   },
-  wattpad: {
+  {
+    handle: "wattpad",
     name: "Wattpad",
     icon: faLink,
   },
-  soundcloud: {
+  {
+    handle: "soundcloud",
     name: "Soundcloud",
     icon: faSoundcloud,
   },
-  spotify: {
+  {
+    handle: "spotify",
     name: "Spotify",
     icon: faSpotify,
   },
-};
+] as const;
