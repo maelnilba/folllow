@@ -26,3 +26,17 @@ export const DISCORD_CLIENT_SECRET = env
   .get("DISCORD_CLIENT_SECRET")
   .required()
   .asString();
+
+export const APP_AWS_ACCESS_KEY = env
+  .get("APP_AWS_ACCESS_KEY")
+  .required()
+  .asString();
+export const APP_AWS_SECRET_KEY = env
+  .get("APP_AWS_SECRET_KEY")
+  .required()
+  .asString();
+export const APP_AWS_REGION = env.get("APP_AWS_REGION").required().asString();
+export const AWS_S3_BUCKET_NAME = env
+  .get("AWS_S3_BUCKET_NAME")
+  .required()
+  .asString();

@@ -145,9 +145,11 @@ const DashboardCreate: React.FC = () => {
               placeholder="@your_nickname"
               className="input input-bordered w-full max-w-xs"
               onBlur={(event) => {
-                const validateBeforeTry = createTreeSchema.safeParse({
-                  slug: event.target.value,
-                });
+                const validateBeforeTry = z
+                  .string()
+                  .regex(/^@/)
+                  .safeParse(event.target.value);
+
                 if (validateBeforeTry.success) {
                   checkSlug.mutate({ slug: event.target.value });
                 }

@@ -1,5 +1,9 @@
 import { DashboardNavbar } from "@components/navbar/dashboard-navbar";
-import { faEye } from "@fortawesome/free-solid-svg-icons";
+import {
+  faEye,
+  faFileImage,
+  faUpload,
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import type { Prisma } from "@prisma/client";
 import type { NextPage } from "next";
@@ -7,7 +11,7 @@ import Head from "next/head";
 import Link from "next/link";
 import { SocialMediaLink, SocialMedias, Themes } from "utils/shared";
 import { trpc } from "utils/trpc";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import DraggableList from "@components/draggable-list";
 import { SocialMediaCombobox } from "@components/combobox";
 import { z } from "zod";
@@ -23,7 +27,6 @@ const postTreeSchema = z.object({
   slug: z.string().optional(),
   bio: z.string().optional(),
   theme: z.enum(Themes).optional(),
-  image: z.string().optional(),
   links: z
     .array(
       z.object({
@@ -47,6 +50,10 @@ const postTreeSchema = z.object({
 
 const Index: NextPage = () => {
   const [dataTheme, setDataTheme] = useState("light");
+
+  const fileRef = useRef<File | null>();
+  const imageRef = useRef<HTMLImageElement | null>(null);
+
   const {
     data: tree,
     isLoading,
@@ -55,6 +62,7 @@ const Index: NextPage = () => {
 
   const postTree = trpc.useMutation(["tree.post-tree"]);
   const checkSlug = trpc.useMutation(["tree.check-slug"]);
+  const uploadImage = trpc.useMutation(["tree.get-presigned-post"]);
 
   const links = useMemo(
     () =>
@@ -66,10 +74,40 @@ const Index: NextPage = () => {
 
   const zo = useZorm("post-tree", postTreeSchema, {
     customIssues: checkSlug.data?.issues,
-    onValidSubmit(e) {
+    async onValidSubmit(e) {
       e.preventDefault();
       alert(JSON.stringify(e.data, null, 2));
-      // postTree.mutate(e.data);
+
+      if (uploadImage.data === undefined) return;
+
+      const { post, key } = uploadImage.data;
+
+      if (post === undefined) return;
+
+      const formData = new FormData();
+
+      if (fileRef.current === undefined) return; // ts checking
+      const file = fileRef.current;
+      if (!file) return;
+
+      Object.entries({
+        ...post.fields,
+        file,
+      }).forEach(([key, value]) => {
+        formData.append(key, value);
+      });
+
+      try {
+        await fetch(post.url, {
+          method: "POST",
+          body: formData,
+        });
+        const url = `https://${process.env.NEXT_PUBLIC_AWS_S3_BUCKET_NAME}.s3.amazonaws.com/${key}`;
+
+        // postTree.mutate({ ...e.data, image: url });
+      } catch (error) {
+        console.error(error);
+      }
     },
   });
 
@@ -92,22 +130,23 @@ const Index: NextPage = () => {
                     <DraggableList
                       items={links}
                       renderItem={(item, index) => {
+                        let linkId = item.id - 1;
                         return (
                           <div className="flex w-full flex-row items-center space-x-2">
                             <div className="flex">
                               <input
                                 type="hidden"
                                 value={index}
-                                name={zo.fields.links(item.id - 1).id()}
+                                name={zo.fields.links(linkId).id()}
                               />
 
                               <SocialMediaCombobox
-                                name={zo.fields.links(item.id - 1).media()}
+                                name={zo.fields.links(linkId).media()}
                                 defaultValue={item.media}
                               />
                             </div>
                             <input
-                              name={zo.fields.links(item.id - 1).url()}
+                              name={zo.fields.links(linkId).url()}
                               defaultValue={item.url}
                               type="text"
                               placeholder="your link"
@@ -139,42 +178,85 @@ const Index: NextPage = () => {
                         Save changes
                       </button>
                     </div>
-                    <div className="kard flex flex-row items-center p-6 ">
-                      <div className="flex flex-1 flex-row items-center space-x-4">
-                        <div className="self-start">
-                          {tree?.image ? (
-                            <div className="avatar w-24">
+                    <div className="kard flex flex-row items-center space-x-4 p-6 ">
+                      <div className="self-start">
+                        <div className="relative">
+                          <div className="avatar w-24">
+                            {tree?.image ? (
                               <img
-                                src={tree.image}
+                                ref={imageRef}
+                                src={tree?.image}
                                 className="h-auto w-auto rounded-full"
                               />
+                            ) : (
+                              <img
+                                ref={imageRef}
+                                src={
+                                  "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACwAAAAAAQABAAACAkQBADs="
+                                }
+                                className="placeholder h-auto w-auto rounded-full"
+                              />
+                            )}
+                          </div>
+                          <div className="absolute right-0 bottom-0">
+                            <div className="relative flex h-10 w-10 flex-col items-center justify-center overflow-hidden rounded-full bg-neutral ">
+                              <input
+                                onChange={async (event) => {
+                                  const file = event.target.files?.[0];
+                                  if (file === undefined) return;
+
+                                  // setFile(file);
+                                  fileRef.current = file;
+                                  if (!imageRef.current) return;
+                                  imageRef.current.src =
+                                    URL.createObjectURL(file);
+                                  const filename = encodeURIComponent(
+                                    file.name
+                                  );
+
+                                  uploadImage.mutate({ filename });
+                                }}
+                                type="file"
+                                accept="image/png, image/jpeg"
+                                className="absolute top-0 right-0 z-10 h-full cursor-pointer opacity-0"
+                              />
+                              <FontAwesomeIcon
+                                icon={faFileImage}
+                                className="text-xl text-neutral-content"
+                              />
                             </div>
-                          ) : (
-                            <div className="avatar placeholder">
-                              <div className="w-24 rounded-full bg-base-100"></div>
-                            </div>
-                          )}
+                          </div>
                         </div>
-                        <div className="flex flex-col space-y-4">
-                          <div className="flex flex-col">
-                            <label className="text-xs">Your slug:</label>
-                            <input
-                              className="input input-bordered w-full max-w-xs"
-                              type="text"
-                              placeholder="@your_nickname"
-                              defaultValue={tree.slug}
-                              name={zo.fields.slug()}
-                            />
-                          </div>
-                          <div className="flex flex-col">
-                            <label className="text-xs">Your bio:</label>
-                            <textarea
-                              className="textarea textarea-bordered"
-                              placeholder="Bio"
-                              defaultValue={tree.bio || ""}
-                              name={zo.fields.bio()}
-                            ></textarea>
-                          </div>
+                      </div>
+                      <div className="flex flex-col space-y-4">
+                        <div>
+                          <label className="text-xs">Your slug:</label>
+                          <input
+                            className="input input-bordered w-full max-w-xs"
+                            type="text"
+                            placeholder="@your_nickname"
+                            defaultValue={tree.slug}
+                            name={zo.fields.slug()}
+                            onBlur={(event) => {
+                              if (event.target.value === tree.slug) return;
+                              const validateBeforeTry = z
+                                .string()
+                                .regex(/^@/)
+                                .safeParse(event.target.value);
+                              if (validateBeforeTry.success) {
+                                checkSlug.mutate({ slug: event.target.value });
+                              }
+                            }}
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-xs">Your bio:</label>
+                          <textarea
+                            className="textarea textarea-bordered"
+                            placeholder="Bio"
+                            defaultValue={tree.bio || ""}
+                            name={zo.fields.bio()}
+                          ></textarea>
                         </div>
                       </div>
                     </div>

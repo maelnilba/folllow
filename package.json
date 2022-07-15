@@ -22,6 +22,7 @@
     "@trpc/next": "^9.25.3",
     "@trpc/react": "^9.25.3",
     "@trpc/server": "^9.25.3",
+    "aws-sdk": "^2.1175.0",
     "env-var": "^7.1.1",
     "framer-motion": "^6.4.3",
     "next": "12.2.0",
