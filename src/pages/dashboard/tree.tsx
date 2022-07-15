@@ -16,6 +16,7 @@ import DraggableList from "@components/draggable-list";
 import { SocialMediaCombobox } from "@components/combobox";
 import { z } from "zod";
 import { useZorm } from "react-zorm";
+import ErrorLabel from "@components/error-label";
 
 function parsePrisma<T>(json: Prisma.JsonValue): T {
   if (typeof json === "string") {
@@ -24,24 +25,19 @@ function parsePrisma<T>(json: Prisma.JsonValue): T {
 }
 
 const postTreeSchema = z.object({
-  slug: z.string().optional(),
-  bio: z.string().optional(),
-  theme: z.enum(Themes).optional(),
+  slug: z
+    .string()
+    .min(3)
+    .max(20)
+    .regex(/^@/, { message: "Must start with a @" }),
+  bio: z.string().max(200).optional(),
+  theme: z.enum(Themes),
   links: z
     .array(
       z.object({
         id: z.string().transform((arg) => parseInt(arg)),
         media: z.enum(SocialMedias),
         url: z.string().min(1),
-      })
-    )
-    .optional(),
-  list: z
-    .array(
-      z.object({
-        id: z.string(),
-        media: z.enum(SocialMedias),
-        url: z.string(),
       })
     )
     .optional(),
@@ -76,38 +72,35 @@ const Index: NextPage = () => {
     customIssues: checkSlug.data?.issues,
     async onValidSubmit(e) {
       e.preventDefault();
-      alert(JSON.stringify(e.data, null, 2));
+      let url: string | undefined = undefined;
 
-      if (uploadImage.data === undefined) return;
+      if (uploadImage.data !== undefined) {
+        const { post, key } = uploadImage.data;
 
-      const { post, key } = uploadImage.data;
+        if (post !== undefined) {
+          const formData = new FormData();
 
-      if (post === undefined) return;
+          if (fileRef.current !== undefined) {
+            const file = fileRef.current;
+            if (file) {
+              Object.entries({
+                ...post.fields,
+                file,
+              }).forEach(([key, value]) => {
+                formData.append(key, value);
+              });
 
-      const formData = new FormData();
+              await fetch(post.url, {
+                method: "POST",
+                body: formData,
+              });
 
-      if (fileRef.current === undefined) return; // ts checking
-      const file = fileRef.current;
-      if (!file) return;
-
-      Object.entries({
-        ...post.fields,
-        file,
-      }).forEach(([key, value]) => {
-        formData.append(key, value);
-      });
-
-      try {
-        await fetch(post.url, {
-          method: "POST",
-          body: formData,
-        });
-        const url = `https://${process.env.NEXT_PUBLIC_AWS_S3_BUCKET_NAME}.s3.amazonaws.com/${key}`;
-
-        // postTree.mutate({ ...e.data, image: url });
-      } catch (error) {
-        console.error(error);
+              url = `https://${process.env.NEXT_PUBLIC_AWS_S3_BUCKET_NAME}.s3.amazonaws.com/${key}`;
+            }
+          }
+        }
       }
+      postTree.mutate({ ...e.data, image: url });
     },
   });
 
@@ -132,26 +125,36 @@ const Index: NextPage = () => {
                       renderItem={(item, index) => {
                         let linkId = item.id - 1;
                         return (
-                          <div className="flex w-full flex-row items-center space-x-2">
+                          <div className="relative flex w-full flex-row items-center space-x-2">
                             <div className="flex">
                               <input
                                 type="hidden"
                                 value={index}
                                 name={zo.fields.links(linkId).id()}
                               />
-
                               <SocialMediaCombobox
                                 name={zo.fields.links(linkId).media()}
                                 defaultValue={item.media}
                               />
                             </div>
-                            <input
-                              name={zo.fields.links(linkId).url()}
-                              defaultValue={item.url}
-                              type="text"
-                              placeholder="your link"
-                              className="input input-bordered w-full"
-                            />
+                            <div className="flex flex-col justify-start">
+                              <input
+                                name={zo.fields.links(linkId).url()}
+                                defaultValue={item.url}
+                                type="text"
+                                placeholder="your link"
+                                className={`input input-bordered w-full ${
+                                  zo.errors.links(linkId).url()?.code
+                                    ? "ring-2 ring-red-500/80"
+                                    : ""
+                                }`}
+                              />
+                              <div className="absolute -bottom-4">
+                                {zo.errors.links(linkId).url((err) => {
+                                  return <ErrorLabel message={err.message} />;
+                                })}
+                              </div>
+                            </div>
                           </div>
                         );
                       }}
@@ -172,7 +175,10 @@ const Index: NextPage = () => {
                       </Link>
                       <button
                         type="submit"
-                        disabled={zo.validation?.success === false}
+                        disabled={
+                          zo.validation?.success === false ||
+                          !!checkSlug.data?.issues.length
+                        }
                         className="btn gap-2 normal-case"
                       >
                         Save changes
@@ -205,7 +211,6 @@ const Index: NextPage = () => {
                                   const file = event.target.files?.[0];
                                   if (file === undefined) return;
 
-                                  // setFile(file);
                                   fileRef.current = file;
                                   if (!imageRef.current) return;
                                   imageRef.current.src =
@@ -239,6 +244,7 @@ const Index: NextPage = () => {
                             name={zo.fields.slug()}
                             onBlur={(event) => {
                               if (event.target.value === tree.slug) return;
+
                               const validateBeforeTry = z
                                 .string()
                                 .regex(/^@/)
@@ -248,6 +254,11 @@ const Index: NextPage = () => {
                               }
                             }}
                           />
+                          <div className="pt-2">
+                            {zo.errors.slug((err) => {
+                              return <ErrorLabel message={err.message} />;
+                            })}
+                          </div>
                         </div>
                         <div className="flex flex-col">
                           <label className="text-xs">Your bio:</label>
@@ -257,6 +268,9 @@ const Index: NextPage = () => {
                             defaultValue={tree.bio || ""}
                             name={zo.fields.bio()}
                           ></textarea>
+                          {zo.errors.bio((err) => {
+                            return <ErrorLabel message={err.message} />;
+                          })}
                         </div>
                       </div>
                     </div>

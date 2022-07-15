@@ -10,6 +10,7 @@ import {
   APP_AWS_SECRET_KEY,
   AWS_S3_BUCKET_NAME,
 } from "../../../env";
+import type { Prisma } from "@prisma/client";
 
 const s3 = new aws.S3({
   accessKeyId: APP_AWS_ACCESS_KEY,
@@ -64,7 +65,6 @@ export const treeRouter = createRouter()
       });
 
       if (data) issues.slug(`Slug ${input.slug} already exists.`);
-
       return { issues: issues.toArray() };
     },
   })
@@ -112,9 +112,13 @@ export const treeRouter = createRouter()
 
   .mutation("post-tree", {
     input: z.object({
-      slug: z.string().optional(),
-      bio: z.string().optional(),
-      theme: z.enum(Themes).optional(),
+      slug: z
+        .string()
+        .min(3)
+        .max(20)
+        .regex(/^@/, { message: "Must start with a @" }),
+      bio: z.string().max(200).optional(),
+      theme: z.enum(Themes),
       image: z.string().optional(),
       links: z
         .array(
@@ -124,18 +128,15 @@ export const treeRouter = createRouter()
             url: z.string().min(1),
           })
         )
+        .transform((arg) => arg.sort((a, b) => a.id - b.id))
+        .transform((arg) => arg as Prisma.JsonArray)
         .optional(),
-      ads_enabled: z.boolean().optional(),
+      ads_enabled: z.boolean(),
     }),
     async resolve({ input, ctx }) {
-      // Should convert links to JSON for prisma
       return await ctx.prisma.tree.update({
         data: {
-          slug: input.slug,
-          theme: input.theme,
-          bio: input.bio,
-          //links,
-          ads_enabled: input.ads_enabled,
+          ...input,
         },
         where: {
           userId: ctx.session.user.id,
@@ -148,7 +149,7 @@ export const treeRouter = createRouter()
       filename: z.string(),
     }),
     resolve({ input }) {
-      const key = input.filename; // should nanoid or userId this thing
+      const key = input.filename; // should nanoid or userId this thing @@ Wanna use userId but with some secret transform manipulation as so can't know user id from the link img
       const post = s3.createPresignedPost({
         Bucket: AWS_S3_BUCKET_NAME,
         Fields: {

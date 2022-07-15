@@ -5,7 +5,7 @@ import { faCaretDown } from "@fortawesome/free-solid-svg-icons";
 import {
   SocialMediasComponents,
   SocialMediasType,
-} from "./social-media-component";
+} from "./social-medias-components";
 import { SocialMedia } from "utils/shared";
 
 interface SocialMediaComboboxProps {

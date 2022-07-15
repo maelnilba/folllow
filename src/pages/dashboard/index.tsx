@@ -15,6 +15,7 @@ import {
 import { useRouter } from "next/router";
 
 import { DashboardNavbar } from "@components/navbar/dashboard-navbar";
+import ErrorLabel from "@components/error-label";
 
 const Index: NextPage = () => {
   const { data: user, isLoading: userLoading } = trpc.useQuery([
@@ -97,10 +98,6 @@ const Index: NextPage = () => {
   );
 };
 
-function ErrorMessage(props: { message: string }) {
-  return <div className="text-xs font-bold text-red-500">{props.message}</div>;
-}
-
 const createTreeSchema = z.object({
   slug: z
     .string()
@@ -167,11 +164,13 @@ const DashboardCreate: React.FC = () => {
             </button>
           </div>
           {zo.errors.slug((err) => {
-            return <ErrorMessage message={err.message} />;
+            return <ErrorLabel message={err.message} />;
           })}
-          {checkSlug.isError && (
-            <ErrorMessage message="This slug already exists" />
-          )}
+          <div className="pt-2">
+            {zo.errors.slug((err) => {
+              return <ErrorLabel message={err.message} />;
+            })}
+          </div>
         </div>
       </form>
     </div>
