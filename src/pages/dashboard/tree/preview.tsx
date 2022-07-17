@@ -24,11 +24,10 @@ function subscribe(callback: () => void) {
 }
 
 function useTreeLocalStorage() {
-  // ✅ Good: Subscribing to an external store with a built-in Hook
   return useSyncExternalStore(
-    subscribe, // React won't resubscribe for as long as you pass the same function
-    () => window.localStorage.getItem("tree"), // How to get the value on the client
-    () => "" // How to get the value on the server
+    subscribe,
+    () => window.localStorage.getItem("tree"),
+    () => null
   );
 }
 
