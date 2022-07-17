@@ -6,7 +6,7 @@ import {
   MotionValue,
   AnimatePresence,
 } from "framer-motion";
-import { nanoid } from "nanoid";
+import { nanoid } from "nanoid/non-secure";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
