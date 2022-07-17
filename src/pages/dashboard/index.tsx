@@ -189,7 +189,7 @@ const DashboardTree: React.FC<DashboardTreeProps> = (props) => {
         {props.tree?.image ? (
           <div className="avatar w-24">
             <img
-              src={props.tree.image}
+              src={`${props.tree.image}?${performance.now()}`}
               className="h-auto w-auto rounded-full"
             />
           </div>
