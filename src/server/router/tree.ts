@@ -16,6 +16,7 @@ const s3 = new aws.S3({
   accessKeyId: APP_AWS_ACCESS_KEY,
   secretAccessKey: APP_AWS_SECRET_KEY,
   region: APP_AWS_REGION,
+  signatureVersion: "v4",
 });
 
 aws.config.update({
@@ -165,7 +166,7 @@ export const treeRouter = createRouter()
         Fields: {
           key: imageId,
         },
-        Expires: 5 * 60, // seconds
+        Expires: 60, // seconds
         Conditions: [
           ["content-length-range", 0, 5048576 * 2], // up to 2 MB
         ],

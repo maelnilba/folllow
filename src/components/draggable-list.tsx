@@ -45,7 +45,6 @@ interface DraggableList<T> {
 
 type ContainsId<Arg> = Arg extends { id: string } ? Arg : never;
 
-// @@TODO - Fix id issues, not correct tho
 export default function DraggableList<T>({
   items,
   renderItem,

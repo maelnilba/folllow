@@ -74,7 +74,7 @@ const Index: NextPage = () => {
     customIssues: checkSlug.data?.issues,
     async onValidSubmit(e) {
       e.preventDefault();
-      alert(JSON.stringify(e.data, null, 2));
+      // alert(JSON.stringify(e.data, null, 2));
       let url: string | undefined = undefined;
 
       if (uploadImage.data !== undefined) {
@@ -197,7 +197,11 @@ const Index: NextPage = () => {
                             {tree?.image ? (
                               <img
                                 ref={imageRef}
-                                src={tree.image}
+                                src={
+                                  imageRef.current
+                                    ? imageRef.current.src
+                                    : `${tree.image}?${performance.now()}`
+                                }
                                 className="h-auto w-auto rounded-full"
                               />
                             ) : (
@@ -221,6 +225,9 @@ const Index: NextPage = () => {
                                   if (!imageRef.current) return;
                                   imageRef.current.src =
                                     URL.createObjectURL(file);
+                                  console.log({
+                                    img: URL.createObjectURL(file),
+                                  });
                                   const filename = encodeURIComponent(
                                     file.name
                                   );
