@@ -5,7 +5,13 @@ import type { Prisma } from "@prisma/client";
 import type { NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
-import { SocialMediaLink, SocialMedias, Theme, Themes } from "utils/shared";
+import {
+  SocialMediaLink,
+  SocialMedias,
+  Theme,
+  Themes,
+  SocialMedia,
+} from "utils/shared";
 import { trpc } from "utils/trpc";
 import { useMemo, useRef, useState } from "react";
 import DraggableList from "@components/draggable-list";
@@ -13,6 +19,29 @@ import { SocialMediaCombobox } from "@components/combobox";
 import { z } from "zod";
 import { useZorm } from "react-zorm";
 import ErrorLabel from "@components/error-label";
+
+interface treeLocalStorage {
+  slug?: string | null;
+  bio?: string | null;
+  theme?: string | null;
+  image?: string | null;
+  ads_enabled?: boolean;
+  links?: {
+    id: string;
+    position: number;
+    media: SocialMedia;
+    url: string;
+  }[];
+}
+
+function getTreeStorage(): treeLocalStorage {
+  const treeLocalStorage = window?.localStorage.getItem("tree");
+  return treeLocalStorage ? JSON.parse(treeLocalStorage) : {};
+}
+
+function setTreeStorage(treeStorage: treeLocalStorage) {
+  window?.localStorage.setItem("tree", JSON.stringify(treeStorage));
+}
 
 function parsePrisma<T>(json: Prisma.JsonValue): T {
   if (typeof json === "string") {
@@ -36,7 +65,6 @@ const postTreeSchema = z.object({
         media: z.enum(SocialMedias),
         url: z.string().min(1).max(160),
       })
-      // .optional()
     )
     .optional(),
   ads_enabled: z.string().optional().transform(Boolean),
@@ -47,7 +75,19 @@ const Index: NextPage = () => {
     data: tree,
     isLoading,
     isError,
-  } = trpc.useQuery(["tree.get-my-tree"]);
+  } = trpc.useQuery(["tree.get-my-tree"], {
+    onSuccess(data) {
+      if (data) {
+        setTreeStorage({
+          ...data,
+          links: data?.links
+            ? parsePrisma<SocialMediaLink[]>(data?.links)
+            : ([] as SocialMediaLink[]),
+        });
+      }
+    },
+    refetchOnWindowFocus: false,
+  });
 
   const postTree = trpc.useMutation(["tree.post-tree"]);
   const checkSlug = trpc.useMutation(["tree.check-slug"]);
@@ -123,6 +163,35 @@ const Index: NextPage = () => {
                   <div className="flex flex-1 flex-col">
                     <DraggableList
                       items={links}
+                      onAdd={(item) => {
+                        const currentStorage = getTreeStorage();
+                        currentStorage.links = currentStorage.links
+                          ? [...currentStorage.links, item]
+                          : [item];
+                        setTreeStorage(currentStorage);
+                      }}
+                      onRemove={(item) => {
+                        const currentStorage = getTreeStorage();
+                        currentStorage.links = currentStorage.links
+                          ? currentStorage.links.filter((v) => v.id !== item.id)
+                          : [];
+                        setTreeStorage(currentStorage);
+                      }}
+                      onReorder={(items) => {
+                        // items contains only id
+                        // might find a better ways to sort things
+                        const currentStorage = getTreeStorage();
+                        const storageLinks = currentStorage.links;
+                        if (!storageLinks) return;
+                        const sorted: typeof storageLinks = [];
+                        items.forEach((item) => {
+                          const f = storageLinks.find((l) => l.id === item.id);
+                          if (!f) return;
+                          sorted.push(f);
+                        });
+                        currentStorage.links = sorted;
+                        setTreeStorage(currentStorage);
+                      }}
                       renderItem={(item, index) => {
                         return (
                           <div className="relative flex w-full flex-row items-center space-x-2">
@@ -140,11 +209,34 @@ const Index: NextPage = () => {
                               <SocialMediaCombobox
                                 name={zo.fields.links(index).media()}
                                 defaultValue={item.media}
+                                onChange={(media) => {
+                                  const currentStorage = getTreeStorage();
+                                  const storageLinks = currentStorage.links;
+                                  if (!storageLinks) return;
+                                  const storageLink = storageLinks.find(
+                                    (link) => link.id === item.id
+                                  );
+                                  if (!storageLink) return;
+                                  storageLink.media = media.handle;
+                                  setTreeStorage(currentStorage);
+                                }}
                               />
                             </div>
                             <div className="flex w-full flex-col justify-start">
                               <input
                                 name={zo.fields.links(index).url()}
+                                onChange={(event) => {
+                                  event.stopPropagation();
+                                  const currentStorage = getTreeStorage();
+                                  const storageLinks = currentStorage.links;
+                                  if (!storageLinks) return;
+                                  const storageLink = storageLinks.find(
+                                    (link) => link.id === item.id
+                                  );
+                                  if (!storageLink) return;
+                                  storageLink.url = event.target.value;
+                                  setTreeStorage(currentStorage);
+                                }}
                                 defaultValue={item.url}
                                 type="text"
                                 placeholder="your link"
@@ -167,7 +259,7 @@ const Index: NextPage = () => {
                   </div>
                   <div className="flex flex-col space-y-4">
                     <div className="kard flex flex-row items-center justify-between p-6 ">
-                      <Link href="/dashboard/tree/live">
+                      <Link href="/dashboard/tree/preview">
                         <a
                           target="_blank"
                           rel="noreferrer"
@@ -217,6 +309,7 @@ const Index: NextPage = () => {
                             <div className="relative flex h-10 w-10 flex-col items-center justify-center overflow-hidden rounded-full bg-neutral hover:bg-neutral/90 ">
                               <input
                                 onChange={async (event) => {
+                                  event.stopPropagation();
                                   const file = event.target.files?.[0];
                                   if (file === undefined) return;
 
@@ -224,14 +317,18 @@ const Index: NextPage = () => {
                                   if (!imageRef.current) return;
                                   imageRef.current.src =
                                     URL.createObjectURL(file);
-                                  console.log({
-                                    img: URL.createObjectURL(file),
-                                  });
+
                                   const filename = encodeURIComponent(
                                     file.name
                                   );
 
                                   uploadImage.mutate({ filename });
+
+                                  const currentStorage = getTreeStorage();
+                                  currentStorage.image =
+                                    URL.createObjectURL(file);
+
+                                  setTreeStorage(currentStorage);
                                 }}
                                 type="file"
                                 accept="image/png, image/jpeg"
@@ -279,6 +376,20 @@ const Index: NextPage = () => {
                             placeholder="Bio"
                             defaultValue={tree.bio || ""}
                             name={zo.fields.bio()}
+                            onChange={(event) => {
+                              event.stopPropagation();
+                              const treeLocalStorage =
+                                window.localStorage.getItem("tree");
+                              const currentStorage: treeLocalStorage =
+                                treeLocalStorage
+                                  ? JSON.parse(treeLocalStorage)
+                                  : {};
+                              currentStorage.bio = event.target.value;
+                              window.localStorage.setItem(
+                                "tree",
+                                JSON.stringify(currentStorage)
+                              );
+                            }}
                           ></textarea>
                           {zo.errors.bio((err) => {
                             return <ErrorLabel message={err.message} />;
@@ -300,6 +411,10 @@ const Index: NextPage = () => {
                             onClick={(event) => {
                               event.stopPropagation();
                               setDataTheme(theme);
+
+                              const currentStorage = getTreeStorage();
+                              currentStorage.theme = theme;
+                              setTreeStorage(currentStorage);
                             }}
                             data-theme={theme}
                             className={`${
@@ -354,6 +469,12 @@ const Index: NextPage = () => {
                             name={zo.fields.ads_enabled()}
                             defaultChecked={tree.ads_enabled || true}
                             className="checkbox"
+                            onChange={(event) => {
+                              event.stopPropagation();
+                              const currentStorage = getTreeStorage();
+                              currentStorage.ads_enabled = event.target.checked;
+                              setTreeStorage(currentStorage);
+                            }}
                           />
                         </label>
                       </div>

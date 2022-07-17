@@ -1,4 +1,4 @@
-import { Fragment, useMemo, useState } from "react";
+import { Fragment, useCallback, useMemo, useState } from "react";
 import { Combobox, Transition } from "@headlessui/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCaretDown } from "@fortawesome/free-solid-svg-icons";
@@ -11,6 +11,7 @@ import { SocialMedia } from "utils/shared";
 interface SocialMediaComboboxProps {
   name: string;
   defaultValue?: SocialMedia;
+  onChange?: (selected: SocialMediasType[number]) => void;
 }
 
 export function SocialMediaCombobox(props: SocialMediaComboboxProps) {
@@ -35,10 +36,17 @@ export function SocialMediaCombobox(props: SocialMediaComboboxProps) {
     [query, SocialMediasComponents]
   );
 
+  const handleOnChange = (value: typeof selected) => {
+    if (props.onChange instanceof Function) {
+      props.onChange(value);
+    }
+    setSelected(value);
+  };
+
   return (
     <div className="relative top-0  w-full p-1">
       <input type="hidden" value={selected.handle} name={props.name} />
-      <Combobox value={selected} onChange={setSelected}>
+      <Combobox value={selected} onChange={handleOnChange}>
         <div className="relative">
           <div className="relative w-full cursor-default rounded-lg text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-base-content focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-teal-300 sm:text-sm">
             <Combobox.Input

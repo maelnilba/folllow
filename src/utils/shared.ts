@@ -1,10 +1,3 @@
-export interface SocialMediaLink {
-  id: string;
-  media: typeof SocialMedias[number];
-  url: string;
-}
-export type SocialMedia = typeof SocialMedias[number];
-
 export const SocialMedias = [
   "twitter",
   "twitch",
@@ -29,6 +22,13 @@ export const SocialMedias = [
   "patreon",
   "github",
 ] as const;
+export type SocialMedia = typeof SocialMedias[number];
+export interface SocialMediaLink {
+  id: string;
+  position: number;
+  media: SocialMedia;
+  url: string;
+}
 
 export type Theme = typeof Themes[number];
 export const Themes = [

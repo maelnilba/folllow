@@ -41,20 +41,34 @@ export function useGrabbing(value: MotionValue<number>) {
 interface DraggableList<T> {
   items: T[];
   renderItem: (item: T, index: number) => React.ReactNode;
+  onAdd?: (item: T) => void;
+  onRemove?: (item: T) => void;
+  onReorder?: (items: T[]) => void;
 }
 
 type ContainsId<Arg> = Arg extends { id: string } ? Arg : never;
 
-export default function DraggableList<T>({
-  items,
-  renderItem,
-}: DraggableList<ContainsId<T>>) {
-  const [list, setList] = useState(items);
+export default function DraggableList<T>(props: DraggableList<ContainsId<T>>) {
+  const [list, setList] = useState(props.items);
   const remove = (item: typeof list[number]) => {
+    if (props.onRemove instanceof Function) {
+      props.onRemove(item);
+    }
     setList((l) => l.filter((v) => v.id !== item.id));
   };
   const add = () => {
-    setList([...list, { id: nanoid() } as typeof list[number]]);
+    const newItem = { id: nanoid() } as typeof list[number];
+    if (props.onAdd instanceof Function) {
+      props.onAdd(newItem);
+    }
+    setList([...list, newItem]);
+  };
+
+  const reorder = (items: typeof list) => {
+    if (props.onReorder instanceof Function) {
+      props.onReorder(items);
+    }
+    setList(items);
   };
 
   return (
@@ -62,7 +76,7 @@ export default function DraggableList<T>({
       <Reorder.Group
         axis="y"
         values={list}
-        onReorder={setList}
+        onReorder={reorder}
         // layoutScroll
         // style={{ overflowY: "scroll" }}
         className="flex w-full flex-col items-center space-y-4 p-6"
@@ -84,7 +98,7 @@ export default function DraggableList<T>({
         <AnimatePresence initial={false}>
           {list.map((item, index) => (
             <Item key={item.id} item={item} removeItem={remove}>
-              {renderItem(item, index)}
+              {props.renderItem(item, index)}
             </Item>
           ))}
         </AnimatePresence>
