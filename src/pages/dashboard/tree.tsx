@@ -37,7 +37,7 @@ const postTreeSchema = z.object({
       z.object({
         id: z.string().transform((arg) => parseInt(arg)),
         media: z.enum(SocialMedias),
-        url: z.string().min(1),
+        url: z.string().min(1).max(160),
       })
     )
     .optional(),
@@ -75,7 +75,7 @@ const Index: NextPage = () => {
       let url: string | undefined = undefined;
 
       if (uploadImage.data !== undefined) {
-        const { post, key } = uploadImage.data;
+        const { post, imageId } = uploadImage.data;
 
         if (post !== undefined) {
           const formData = new FormData();
@@ -94,8 +94,7 @@ const Index: NextPage = () => {
                 method: "POST",
                 body: formData,
               });
-
-              url = `https://${process.env.NEXT_PUBLIC_AWS_S3_BUCKET_NAME}.s3.amazonaws.com/${key}`;
+              url = imageId;
             }
           }
         }
@@ -191,7 +190,7 @@ const Index: NextPage = () => {
                             {tree?.image ? (
                               <img
                                 ref={imageRef}
-                                src={tree?.image}
+                                src={tree.image}
                                 className="h-auto w-auto rounded-full"
                               />
                             ) : (
@@ -205,7 +204,7 @@ const Index: NextPage = () => {
                             )}
                           </div>
                           <div className="absolute right-0 bottom-0">
-                            <div className="relative flex h-10 w-10 flex-col items-center justify-center overflow-hidden rounded-full bg-neutral ">
+                            <div className="relative flex h-10 w-10 flex-col items-center justify-center overflow-hidden rounded-full bg-neutral hover:bg-neutral/90 ">
                               <input
                                 onChange={async (event) => {
                                   const file = event.target.files?.[0];

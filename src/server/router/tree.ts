@@ -119,13 +119,19 @@ export const treeRouter = createRouter()
         .regex(/^@/, { message: "Must start with a @" }),
       bio: z.string().max(200).optional(),
       theme: z.enum(Themes),
-      image: z.string().optional(),
+      image: z
+        .string()
+        .transform(
+          (arg) =>
+            `https://${AWS_S3_BUCKET_NAME}.s3.${APP_AWS_REGION}.amazonaws.com/${arg}`
+        )
+        .optional(),
       links: z
         .array(
           z.object({
             id: z.number().nonnegative(),
             media: z.enum(SocialMedias),
-            url: z.string().min(1),
+            url: z.string().min(1).max(160),
           })
         )
         .transform((arg) => arg.sort((a, b) => a.id - b.id))
@@ -148,19 +154,22 @@ export const treeRouter = createRouter()
     input: z.object({
       filename: z.string(),
     }),
-    resolve({ input }) {
-      const key = input.filename; // should nanoid or userId this thing @@ Wanna use userId but with some secret transform manipulation as so can't know user id from the link img
+    resolve({ input, ctx }) {
+      // @@ Wanna use userId but with some secret transform manipulation as so can't know user id from the link img
+      // thing like space and special characters can cause issues tho
+      // might be "better" to create a new one and delete the older one, rather than replace with the same id from aws
+      const imageId = ctx.session.user.id;
       const post = s3.createPresignedPost({
         Bucket: AWS_S3_BUCKET_NAME,
         Fields: {
-          key,
+          key: imageId,
         },
-        Expires: 60, // seconds
+        Expires: 5 * 60, // seconds
         Conditions: [
-          ["content-length-range", 0, 5048576], // up to 1 MB
+          ["content-length-range", 0, 5048576 * 2], // up to 2 MB
         ],
       });
 
-      return { key, post };
+      return { imageId, post };
     },
   });

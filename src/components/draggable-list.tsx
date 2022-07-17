@@ -56,7 +56,8 @@ export default function DraggableList<T>({
 }: DraggableList<ContainsId<T>>) {
   const [list, setList] = useState(items);
   const remove = (item: typeof list[number]) => {
-    setList(removeItem(items, item));
+    setList((l) => l.filter((v) => v.id !== item.id));
+    // setList(removeItem(items, item));
   };
   const add = () => {
     setList([{ id: list.length + 1 } as typeof list[number], ...list]);
@@ -117,7 +118,7 @@ function Item<T>({ item, children, removeItem }: ItemProps<ContainsId<T>>) {
       dragControls={dragControls}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
+      exit={{ opacity: 0, transition: { duration: 0.15 } }}
       whileDrag={{
         scale: 1.05,
         boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1)",
