@@ -6,6 +6,7 @@ import {
   MotionValue,
   AnimatePresence,
 } from "framer-motion";
+import { nanoid } from "nanoid";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -13,12 +14,6 @@ import {
   faPlusCircle,
   faSquareXmark,
 } from "@fortawesome/free-solid-svg-icons";
-
-function removeItem<T>([...arr]: T[], item: T) {
-  const index = arr.indexOf(item);
-  index > -1 && arr.splice(index, 1);
-  return arr;
-}
 
 export function useGrabbing(value: MotionValue<number>) {
   useEffect(() => {
@@ -48,8 +43,9 @@ interface DraggableList<T> {
   renderItem: (item: T, index: number) => React.ReactNode;
 }
 
-type ContainsId<Arg> = Arg extends { id: number } ? Arg : never;
+type ContainsId<Arg> = Arg extends { id: string } ? Arg : never;
 
+// @@TODO - Fix id issues, not correct tho
 export default function DraggableList<T>({
   items,
   renderItem,
@@ -57,10 +53,9 @@ export default function DraggableList<T>({
   const [list, setList] = useState(items);
   const remove = (item: typeof list[number]) => {
     setList((l) => l.filter((v) => v.id !== item.id));
-    // setList(removeItem(items, item));
   };
   const add = () => {
-    setList([{ id: list.length + 1 } as typeof list[number], ...list]);
+    setList([...list, { id: nanoid() } as typeof list[number]]);
   };
 
   return (

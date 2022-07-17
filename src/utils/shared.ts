@@ -1,5 +1,5 @@
 export interface SocialMediaLink {
-  id: number;
+  id: string;
   media: typeof SocialMedias[number];
   url: string;
 }
@@ -27,6 +27,7 @@ export const SocialMedias = [
   "soundcloud",
   "spotify",
   "patreon",
+  "github",
 ] as const;
 
 export type Theme = typeof Themes[number];

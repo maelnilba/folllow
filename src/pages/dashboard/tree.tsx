@@ -35,10 +35,12 @@ const postTreeSchema = z.object({
   links: z
     .array(
       z.object({
-        id: z.string().transform((arg) => parseInt(arg)),
+        position: z.string().transform((arg) => parseInt(arg)),
+        id: z.string(),
         media: z.enum(SocialMedias),
         url: z.string().min(1).max(160),
       })
+      // .optional()
     )
     .optional(),
   ads_enabled: z.string().optional().transform(Boolean),
@@ -72,6 +74,7 @@ const Index: NextPage = () => {
     customIssues: checkSlug.data?.issues,
     async onValidSubmit(e) {
       e.preventDefault();
+      alert(JSON.stringify(e.data, null, 2));
       let url: string | undefined = undefined;
 
       if (uploadImage.data !== undefined) {
@@ -122,34 +125,38 @@ const Index: NextPage = () => {
                     <DraggableList
                       items={links}
                       renderItem={(item, index) => {
-                        let linkId = item.id - 1;
                         return (
                           <div className="relative flex w-full flex-row items-center space-x-2">
-                            <div className="flex">
+                            <input
+                              type="hidden"
+                              value={item.id}
+                              name={zo.fields.links(index).id()}
+                            />
+                            <div>
                               <input
                                 type="hidden"
                                 value={index}
-                                name={zo.fields.links(linkId).id()}
+                                name={zo.fields.links(index).position()}
                               />
                               <SocialMediaCombobox
-                                name={zo.fields.links(linkId).media()}
+                                name={zo.fields.links(index).media()}
                                 defaultValue={item.media}
                               />
                             </div>
-                            <div className="flex flex-col justify-start">
+                            <div className="flex w-full flex-col justify-start">
                               <input
-                                name={zo.fields.links(linkId).url()}
+                                name={zo.fields.links(index).url()}
                                 defaultValue={item.url}
                                 type="text"
                                 placeholder="your link"
                                 className={`input input-bordered w-full ${
-                                  zo.errors.links(linkId).url()?.code
+                                  zo.errors.links(index).url()?.code
                                     ? "ring-2 ring-red-500/80"
                                     : ""
                                 }`}
                               />
                               <div className="absolute -bottom-4">
-                                {zo.errors.links(linkId).url((err) => {
+                                {zo.errors.links(index).url((err) => {
                                   return <ErrorLabel message={err.message} />;
                                 })}
                               </div>

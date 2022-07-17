@@ -3,6 +3,7 @@ import {
   faDiscord,
   faFacebook,
   faFlickr,
+  faGithub,
   faInstagram,
   faLinkedin,
   faPatreon,
@@ -132,5 +133,10 @@ export const SocialMediasComponents: SocialMediasType = [
     handle: "spotify",
     name: "Spotify",
     icon: faSpotify,
+  },
+  {
+    handle: "github",
+    name: "GitHub",
+    icon: faGithub,
   },
 ] as const;

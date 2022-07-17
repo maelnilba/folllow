@@ -129,12 +129,13 @@ export const treeRouter = createRouter()
       links: z
         .array(
           z.object({
-            id: z.number().nonnegative(),
+            position: z.number().nonnegative(),
+            id: z.string(),
             media: z.enum(SocialMedias),
             url: z.string().min(1).max(160),
           })
         )
-        .transform((arg) => arg.sort((a, b) => a.id - b.id))
+        .transform((arg) => arg.sort((a, b) => a.position - b.position))
         .transform((arg) => arg as Prisma.JsonArray)
         .optional(),
       ads_enabled: z.boolean(),
