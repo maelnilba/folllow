@@ -43,6 +43,13 @@ function setTreeStorage(treeStorage: treeLocalStorage) {
   window?.localStorage.setItem("tree", JSON.stringify(treeStorage));
 }
 
+function treeStorage(
+  callback: (storage: treeLocalStorage) => treeLocalStorage
+) {
+  const currentStorage = getTreeStorage();
+  setTreeStorage(callback(currentStorage));
+}
+
 function parsePrisma<T>(json: Prisma.JsonValue): T {
   if (typeof json === "string") {
     return JSON.parse(json);
@@ -164,33 +171,39 @@ const Index: NextPage = () => {
                     <DraggableList
                       items={links}
                       onAdd={(item) => {
-                        const currentStorage = getTreeStorage();
-                        currentStorage.links = currentStorage.links
-                          ? [...currentStorage.links, item]
-                          : [item];
-                        setTreeStorage(currentStorage);
+                        treeStorage((storage) => {
+                          storage.links = storage.links
+                            ? [...storage.links, item]
+                            : [item];
+                          return storage;
+                        });
                       }}
                       onRemove={(item) => {
-                        const currentStorage = getTreeStorage();
-                        currentStorage.links = currentStorage.links
-                          ? currentStorage.links.filter((v) => v.id !== item.id)
-                          : [];
-                        setTreeStorage(currentStorage);
+                        treeStorage((storage) => {
+                          storage.links = storage.links
+                            ? storage.links.filter((v) => v.id !== item.id)
+                            : [];
+                          return storage;
+                        });
                       }}
                       onReorder={(items) => {
                         // items contains only id
                         // might find a better ways to sort things
-                        const currentStorage = getTreeStorage();
-                        const storageLinks = currentStorage.links;
-                        if (!storageLinks) return;
-                        const sorted: typeof storageLinks = [];
-                        items.forEach((item) => {
-                          const f = storageLinks.find((l) => l.id === item.id);
-                          if (!f) return;
-                          sorted.push(f);
+
+                        treeStorage((storage) => {
+                          const storageLinks = storage.links;
+                          if (!storageLinks) return storage;
+                          const sorted: typeof storageLinks = [];
+                          items.forEach((item) => {
+                            const f = storageLinks.find(
+                              (l) => l.id === item.id
+                            );
+                            if (!f) return;
+                            sorted.push(f);
+                          });
+                          storage.links = sorted;
+                          return storage;
                         });
-                        currentStorage.links = sorted;
-                        setTreeStorage(currentStorage);
                       }}
                       renderItem={(item, index) => {
                         return (
@@ -210,15 +223,16 @@ const Index: NextPage = () => {
                                 name={zo.fields.links(index).media()}
                                 defaultValue={item.media}
                                 onChange={(media) => {
-                                  const currentStorage = getTreeStorage();
-                                  const storageLinks = currentStorage.links;
-                                  if (!storageLinks) return;
-                                  const storageLink = storageLinks.find(
-                                    (link) => link.id === item.id
-                                  );
-                                  if (!storageLink) return;
-                                  storageLink.media = media.handle;
-                                  setTreeStorage(currentStorage);
+                                  treeStorage((storage) => {
+                                    const storageLinks = storage.links;
+                                    if (!storageLinks) return storage;
+                                    const storageLink = storageLinks.find(
+                                      (link) => link.id === item.id
+                                    );
+                                    if (!storageLink) return storage;
+                                    storageLink.media = media.handle;
+                                    return storage;
+                                  });
                                 }}
                               />
                             </div>
@@ -227,15 +241,16 @@ const Index: NextPage = () => {
                                 name={zo.fields.links(index).url()}
                                 onChange={(event) => {
                                   event.stopPropagation();
-                                  const currentStorage = getTreeStorage();
-                                  const storageLinks = currentStorage.links;
-                                  if (!storageLinks) return;
-                                  const storageLink = storageLinks.find(
-                                    (link) => link.id === item.id
-                                  );
-                                  if (!storageLink) return;
-                                  storageLink.url = event.target.value;
-                                  setTreeStorage(currentStorage);
+                                  treeStorage((storage) => {
+                                    const storageLinks = storage.links;
+                                    if (!storageLinks) return storage;
+                                    const storageLink = storageLinks.find(
+                                      (link) => link.id === item.id
+                                    );
+                                    if (!storageLink) return storage;
+                                    storageLink.url = event.target.value;
+                                    return storage;
+                                  });
                                 }}
                                 defaultValue={item.url}
                                 type="text"
@@ -324,11 +339,10 @@ const Index: NextPage = () => {
 
                                   uploadImage.mutate({ filename });
 
-                                  const currentStorage = getTreeStorage();
-                                  currentStorage.image =
-                                    URL.createObjectURL(file);
-
-                                  setTreeStorage(currentStorage);
+                                  treeStorage((storage) => {
+                                    storage.image = URL.createObjectURL(file);
+                                    return storage;
+                                  });
                                 }}
                                 type="file"
                                 accept="image/png, image/jpeg"
@@ -378,17 +392,10 @@ const Index: NextPage = () => {
                             name={zo.fields.bio()}
                             onChange={(event) => {
                               event.stopPropagation();
-                              const treeLocalStorage =
-                                window.localStorage.getItem("tree");
-                              const currentStorage: treeLocalStorage =
-                                treeLocalStorage
-                                  ? JSON.parse(treeLocalStorage)
-                                  : {};
-                              currentStorage.bio = event.target.value;
-                              window.localStorage.setItem(
-                                "tree",
-                                JSON.stringify(currentStorage)
-                              );
+                              treeStorage((storage) => {
+                                storage.bio = event.target.value;
+                                return storage;
+                              });
                             }}
                           ></textarea>
                           {zo.errors.bio((err) => {
@@ -412,9 +419,10 @@ const Index: NextPage = () => {
                               event.stopPropagation();
                               setDataTheme(theme);
 
-                              const currentStorage = getTreeStorage();
-                              currentStorage.theme = theme;
-                              setTreeStorage(currentStorage);
+                              treeStorage((storage) => {
+                                storage.theme = theme;
+                                return storage;
+                              });
                             }}
                             data-theme={theme}
                             className={`${
@@ -471,9 +479,10 @@ const Index: NextPage = () => {
                             className="checkbox"
                             onChange={(event) => {
                               event.stopPropagation();
-                              const currentStorage = getTreeStorage();
-                              currentStorage.ads_enabled = event.target.checked;
-                              setTreeStorage(currentStorage);
+                              treeStorage((storage) => {
+                                storage.ads_enabled = event.target.checked;
+                                return storage;
+                              });
                             }}
                           />
                         </label>
