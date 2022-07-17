@@ -2,7 +2,6 @@ import type { NextPage } from "next";
 import Head from "next/head";
 import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
-import Image from "next/future/image";
 
 const Index: NextPage = () => {
   const { data: session } = useSession();
