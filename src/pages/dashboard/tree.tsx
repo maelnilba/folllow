@@ -1,15 +1,11 @@
 import { DashboardNavbar } from "@components/navbar/dashboard-navbar";
-import {
-  faEye,
-  faFileImage,
-  faUpload,
-} from "@fortawesome/free-solid-svg-icons";
+import { faEye, faFileImage } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import type { Prisma } from "@prisma/client";
 import type { NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
-import { SocialMediaLink, SocialMedias, Themes } from "utils/shared";
+import { SocialMediaLink, SocialMedias, Theme, Themes } from "utils/shared";
 import { trpc } from "utils/trpc";
 import { useMemo, useRef, useState } from "react";
 import DraggableList from "@components/draggable-list";
@@ -47,11 +43,6 @@ const postTreeSchema = z.object({
 });
 
 const Index: NextPage = () => {
-  const [dataTheme, setDataTheme] = useState("light");
-
-  const fileRef = useRef<File | null>();
-  const imageRef = useRef<HTMLImageElement | null>(null);
-
   const {
     data: tree,
     isLoading,
@@ -61,6 +52,14 @@ const Index: NextPage = () => {
   const postTree = trpc.useMutation(["tree.post-tree"]);
   const checkSlug = trpc.useMutation(["tree.check-slug"]);
   const uploadImage = trpc.useMutation(["tree.get-presigned-post"]);
+
+  const [dataTheme, setDataTheme] = useState<typeof Themes[number]>();
+  const currentTheme: Theme = useMemo(
+    () => dataTheme || (tree?.theme as Theme) || "light",
+    [dataTheme, tree]
+  );
+  const fileRef = useRef<File | null>();
+  const imageRef = useRef<HTMLImageElement | null>(null);
 
   const links = useMemo(
     () =>
@@ -114,7 +113,7 @@ const Index: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <div className="flex min-h-screen flex-col" data-theme={dataTheme}>
+      <div className="flex min-h-screen flex-col" data-theme={currentTheme}>
         <div className="flex flex-col space-y-4 px-24">
           <DashboardNavbar />
           <main>
@@ -292,11 +291,11 @@ const Index: NextPage = () => {
                       <div className="rounded-box grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2">
                         <input
                           type="hidden"
-                          value={dataTheme}
+                          value={currentTheme}
                           name={zo.fields.theme()}
                         />
                         {Themes.map((theme) => (
-                          <div
+                          <button
                             key={theme}
                             onClick={(event) => {
                               event.stopPropagation();
@@ -304,7 +303,7 @@ const Index: NextPage = () => {
                             }}
                             data-theme={theme}
                             className={`${
-                              dataTheme === theme ? "ring-2" : ""
+                              theme === currentTheme ? "ring-2" : ""
                             } overflow-hidden rounded-lg border border-base-content/20 outline-2 outline-offset-2 outline-base-content ring-primary hover:border-base-content/40`}
                           >
                             <div className="w-full cursor-pointer bg-base-100 font-sans text-base-content">
@@ -340,7 +339,7 @@ const Index: NextPage = () => {
                                 </div>
                               </div>
                             </div>
-                          </div>
+                          </button>
                         ))}
                       </div>
                     </div>
