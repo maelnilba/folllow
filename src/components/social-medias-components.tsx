@@ -20,6 +20,8 @@ import {
   IconDefinition,
 } from "@fortawesome/free-brands-svg-icons";
 import { faLink } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { memo, useMemo } from "react";
 import { SocialMedia } from "utils/shared";
 
 export type SocialMediasType = readonly {
@@ -140,3 +142,26 @@ export const SocialMediasComponents: SocialMediasType = [
     icon: faGithub,
   },
 ] as const;
+
+interface SocialMediaIconProps {
+  media: SocialMedia;
+  className?: string;
+  iconClassName?: string;
+}
+export const SocialMediaComponent = memo((props: SocialMediaIconProps) => {
+  const media = useMemo(
+    () =>
+      SocialMediasComponents.find((media) => media.handle === props.media) || {
+        icon: faLink,
+        handle: "custom",
+        name: "Custom",
+      },
+    [props]
+  );
+  return (
+    <div className={props.className}>
+      <FontAwesomeIcon icon={media.icon} className={props.iconClassName} />
+      <p>{media.name}</p>
+    </div>
+  );
+});

@@ -13,7 +13,7 @@ import {
   SocialMedia,
 } from "utils/shared";
 import { trpc } from "utils/trpc";
-import { useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import DraggableList from "@components/draggable-list";
 import { SocialMediaCombobox } from "@components/combobox";
 import { z } from "zod";
@@ -32,22 +32,6 @@ interface treeLocalStorage {
     media: SocialMedia;
     url: string;
   }[];
-}
-
-function getTreeStorage(): treeLocalStorage {
-  const treeLocalStorage = window?.localStorage.getItem("tree");
-  return treeLocalStorage ? JSON.parse(treeLocalStorage) : {};
-}
-
-function setTreeStorage(treeStorage: treeLocalStorage) {
-  window?.localStorage.setItem("tree", JSON.stringify(treeStorage));
-}
-
-function treeStorage(
-  callback: (storage: treeLocalStorage) => treeLocalStorage
-) {
-  const currentStorage = getTreeStorage();
-  setTreeStorage(callback(currentStorage));
 }
 
 function parsePrisma<T>(json: Prisma.JsonValue): T {
@@ -85,12 +69,15 @@ const Index: NextPage = () => {
   } = trpc.useQuery(["tree.get-my-tree"], {
     onSuccess(data) {
       if (data) {
-        setTreeStorage({
-          ...data,
-          links: data?.links
-            ? parsePrisma<SocialMediaLink[]>(data?.links)
-            : ([] as SocialMediaLink[]),
-        });
+        window?.localStorage.setItem(
+          "tree",
+          JSON.stringify({
+            ...data,
+            links: data?.links
+              ? parsePrisma<SocialMediaLink[]>(data?.links)
+              : ([] as SocialMediaLink[]),
+          })
+        );
       }
     },
     refetchOnWindowFocus: false,
@@ -151,6 +138,23 @@ const Index: NextPage = () => {
       postTree.mutate({ ...e.data, image: url });
     },
   });
+
+  const treeStorage = useCallback(
+    (callback: (storage: treeLocalStorage) => treeLocalStorage): void => {
+      if (typeof window === undefined) return;
+      const treeLocalStorage = window.localStorage.getItem("tree");
+
+      const currentStorage = treeLocalStorage
+        ? JSON.parse(treeLocalStorage)
+        : {};
+
+      window.localStorage.setItem(
+        "tree",
+        JSON.stringify(callback(currentStorage))
+      );
+    },
+    []
+  );
 
   return (
     <>
@@ -254,7 +258,7 @@ const Index: NextPage = () => {
                                 }}
                                 defaultValue={item.url}
                                 type="text"
-                                placeholder="your link"
+                                placeholder={`https://folllow.link/${tree.slug}`}
                                 className={`input input-bordered w-full ${
                                   zo.errors.links(index).url()?.code
                                     ? "ring-2 ring-red-500/80"
@@ -362,12 +366,17 @@ const Index: NextPage = () => {
                           <input
                             className="input input-bordered w-full max-w-xs"
                             type="text"
-                            placeholder="@your_nickname"
+                            placeholder="@folllow.link"
                             defaultValue={tree.slug}
                             name={zo.fields.slug()}
+                            onChange={(event) => {
+                              event.stopPropagation();
+                              treeStorage((storage) => {
+                                storage.slug = event.target.value;
+                                return storage;
+                              });
+                            }}
                             onBlur={(event) => {
-                              if (event.target.value === tree.slug) return;
-
                               const validateBeforeTry = z
                                 .string()
                                 .regex(/^@/)
@@ -387,7 +396,9 @@ const Index: NextPage = () => {
                           <label className="text-xs">Your bio:</label>
                           <textarea
                             className="textarea textarea-bordered"
-                            placeholder="Bio"
+                            placeholder={
+                              "Hi, \nthis is created with folllow.link !"
+                            }
                             defaultValue={tree.bio || ""}
                             name={zo.fields.bio()}
                             onChange={(event) => {

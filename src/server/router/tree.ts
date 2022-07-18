@@ -59,13 +59,16 @@ export const treeRouter = createRouter()
       const data = await ctx.prisma.tree.findUnique({
         select: {
           slug: true,
+          userId: true,
         },
         where: {
           slug: input.slug,
         },
       });
 
-      if (data) issues.slug(`Slug ${input.slug} already exists.`);
+      if (data && data.userId !== ctx.session?.user?.id) {
+        issues.slug(`Slug ${input.slug} already exists.`);
+      }
       return { issues: issues.toArray() };
     },
   })
