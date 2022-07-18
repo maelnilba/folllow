@@ -164,7 +164,7 @@ const Index: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <div className="flex min-h-screen flex-col" data-theme={currentTheme}>
+      <div className="flex min-h-screen flex-col">
         <div className="flex flex-col space-y-4 px-24">
           <DashboardNavbar />
           <main>

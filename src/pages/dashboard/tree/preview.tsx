@@ -3,6 +3,10 @@ import { NextPage } from "next";
 import Head from "next/head";
 import { useSyncExternalStore } from "react";
 import { SocialMedia } from "utils/shared";
+import { Tab } from "@headlessui/react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faMobilePhone } from "@fortawesome/free-solid-svg-icons";
+import { faWindowMaximize } from "@fortawesome/free-regular-svg-icons";
 
 interface treeLocalStorage {
   slug?: string | null;
@@ -39,6 +43,7 @@ const Index: NextPage = () => {
     ? JSON.parse(treeLocalStorage)
     : null;
   if (!tree) return <div>not tree dude</div>;
+  const time = performance.now();
   return (
     <>
       <Head>
@@ -47,11 +52,37 @@ const Index: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <div className="flex h-screen flex-col items-stretch space-y-4 p-6">
-        <div className="flex flex-row items-center justify-center">
-          <button className="btn">Switch View</button>
-        </div>
-        <div className="mockup-window flex grow flex-col border border-base-200 bg-base-300">
-          <Preview tree={tree} />
+        <div className="flex w-full grow flex-col items-center space-y-2">
+          <Tab.Group manual>
+            <Tab.List className="tabs  tabs-boxed gap-4 drop-shadow-md">
+              <Tab
+                className={({ selected }) =>
+                  `${selected ? "tab-active" : ""} tab gap-2
+                  `
+                }
+              >
+                <FontAwesomeIcon icon={faWindowMaximize} />
+                Window
+              </Tab>
+              <Tab
+                className={({ selected }) =>
+                  `${selected ? "tab-active" : ""} tab  gap-2
+                  `
+                }
+              >
+                <FontAwesomeIcon icon={faMobilePhone} />
+                Phone
+              </Tab>
+            </Tab.List>
+            <Tab.Panels className="flex grow flex-col items-center justify-center self-stretch">
+              <Tab.Panel className="flex grow flex-col self-stretch">
+                <WindowPreview tree={tree} time={time} />
+              </Tab.Panel>
+              <Tab.Panel className="flex grow flex-col justify-center self-stretch">
+                <PhonePreview tree={tree} time={time} />
+              </Tab.Panel>
+            </Tab.Panels>
+          </Tab.Group>
         </div>
       </div>
     </>
@@ -60,16 +91,39 @@ const Index: NextPage = () => {
 
 interface PreviewProps {
   tree: treeLocalStorage;
+  time: number;
 }
-const Preview = ({ tree }: PreviewProps) => {
+
+const PhonePreview = ({ tree, time }: PreviewProps) => {
   return (
-    <div data-theme={tree.theme} className="flex grow flex-col">
+    <div className="mockup-phone drop-shadow-lg">
+      <div className="camera"></div>
+      <div className="display">
+        <div className="artboard artboard-demo phone-2">
+          <Preview tree={tree} time={time} />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const WindowPreview = ({ tree, time }: PreviewProps) => {
+  return (
+    <div className="mockup-window flex grow flex-col border border-base-200 bg-base-300 drop-shadow-lg">
+      <Preview tree={tree} time={time} />
+    </div>
+  );
+};
+
+const Preview = ({ tree, time }: PreviewProps) => {
+  return (
+    <div data-theme={tree.theme} className="flex grow flex-col self-stretch">
       <div className="flex min-h-full flex-col items-center bg-gradient-to-b from-base-100 to-base-300">
         <div className="flex w-full max-w-[760px] flex-col items-center space-y-4 p-10">
           {tree?.image ? (
             <div className="avatar w-24 drop-shadow-2xl">
               <img
-                src={`${tree.image}?${performance.now()}`}
+                src={`${tree.image}?${time}`}
                 className="h-auto w-auto rounded-full"
               />
             </div>
@@ -83,7 +137,7 @@ const Preview = ({ tree }: PreviewProps) => {
           <div className="flex w-full flex-col items-center space-y-2 py-4 ">
             {tree?.links?.map((link) => (
               <a
-                className="btn btn-lg flex w-full normal-case"
+                className="btn btn-lg no-animation flex w-full normal-case"
                 key={link.id}
                 href={link.url}
                 target="_blank"
