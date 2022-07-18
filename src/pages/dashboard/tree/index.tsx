@@ -199,13 +199,8 @@ const Index: NextPage = () => {
             </div>
           </div>
           <div className="flex-none">
-            <Link href={`/${tree?.slug}`}>
-              <a
-                target="_blank"
-                rel="noreferrer"
-                role="button"
-                className="btn btn-outline btn-sm normal-case"
-              >
+            <Link href={`/dashboard/me`}>
+              <a role="button" className="btn btn-outline btn-sm normal-case">
                 View changes
               </a>
             </Link>
