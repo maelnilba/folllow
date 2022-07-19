@@ -7,7 +7,11 @@ export const DashboardNavbar = () => {
   return (
     <div className="flex flex-row items-center p-6">
       <div className="flew-row flex flex-1 items-center justify-start space-x-10">
-        <div className="text-4xl font-bold">Folllow.</div>
+        <Link href="/dashboard">
+          <a className="btn rounded-full bg-slate-900 text-xl normal-case">
+            Folllow.
+          </a>
+        </Link>
       </div>
       <div className="flew-row flex items-center justify-start space-x-10">
         <div className="flex flex-row items-center space-x-8">

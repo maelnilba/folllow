@@ -143,6 +143,15 @@ const Index: NextPage = () => {
         {
           onSuccess(data) {
             utils.setQueryData(["tree.get-my-tree"], data);
+            utils.setQueryData(["auth.get-dashboard"], (infos) => ({
+              ...infos!,
+              tree: {
+                bio: data.bio,
+                slug: data.slug,
+                image: data.image,
+              },
+            }));
+
             if (toast.current) {
               toast.current.show();
             }
