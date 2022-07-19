@@ -25,7 +25,9 @@ const Index: NextPage = () => {
     data: dashboard,
     isLoading: treeLoading,
     isError: treeError,
-  } = trpc.useQuery(["auth.get-dashboard"]);
+  } = trpc.useQuery(["auth.get-dashboard"], {
+    refetchOnWindowFocus: true,
+  });
 
   return (
     <>
@@ -199,7 +201,7 @@ const DashboardTree: React.FC<DashboardTreeProps> = (props) => {
           </div>
         )}
         <div className="">
-          <Link href={`/${props.tree?.slug || "dashboard"}`}>
+          <Link href="/dashboard/me">
             <a className="text-xl font-bold hover:opacity-75">
               {props.tree?.slug}
             </a>
