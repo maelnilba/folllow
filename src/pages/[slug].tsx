@@ -1,9 +1,11 @@
 import { SocialMediaComponent } from "@components/social-medias-components";
+import type { NextRequest } from "next/server";
 import type { Prisma } from "@prisma/client";
 import type { GetServerSideProps, NextPage } from "next";
 import Head from "next/head";
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import type { SocialMediaLink } from "utils/shared";
+import { trpc } from "utils/trpc";
 import { prisma } from "../server/db/client";
 
 interface ServerSideProps {
@@ -16,7 +18,7 @@ interface ServerSideProps {
     ads_enabled: boolean;
   };
 }
-
+let useEffectCancelStrictMode = false;
 function parsePrisma<T>(json: Prisma.JsonValue): T {
   if (typeof json === "string") {
     return JSON.parse(json);
@@ -31,6 +33,44 @@ const Index: NextPage<ServerSideProps> = ({ tree }) => {
         : ([] as SocialMediaLink[]),
     [tree]
   );
+
+  const adblockHoneyPotRef = useRef<HTMLImageElement | null>(null);
+
+  const postView = trpc.useMutation(["analytics.post-view"]);
+  const postClick = trpc.useMutation(["analytics.post-click"]);
+
+  useEffect(() => {
+    if (useEffectCancelStrictMode === true) return;
+    useEffectCancelStrictMode = true;
+
+    const asyncEffect = async () => {
+      const hasAdblock = adblockHoneyPotRef.current
+        ? adblockHoneyPotRef.current.clientHeight > 0
+          ? false
+          : true
+        : false;
+      const geo: NextRequest["geo"] = await (
+        await fetch("/api/geo", {
+          method: "GET",
+          headers: {
+            "content-type": "application/json",
+          },
+        })
+      ).json();
+
+      postView.mutate({
+        has_adblock: hasAdblock,
+        slug: tree.slug,
+        geo: {
+          city: geo?.city,
+          country: geo?.country,
+        },
+      });
+    };
+
+    asyncEffect();
+  }, [adblockHoneyPotRef.current]);
+
   return (
     <>
       <Head>
@@ -39,6 +79,9 @@ const Index: NextPage<ServerSideProps> = ({ tree }) => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <div data-theme={tree.theme}>
+        <div className="aw0 absolute">
+          <img className="img_ad h-1" ref={adblockHoneyPotRef}></img>
+        </div>
         <div className="flex min-h-screen flex-col items-center bg-gradient-to-b from-base-100 to-base-300">
           <div className="flex w-full max-w-[760px] flex-col items-center space-y-4 p-10">
             {tree?.image ? (
@@ -60,6 +103,12 @@ const Index: NextPage<ServerSideProps> = ({ tree }) => {
                   href={link.url}
                   target="_blank"
                   rel="noreferrer"
+                  onClick={(event) => {
+                    postClick.mutate({
+                      slug: tree.slug,
+                      element: link.media,
+                    });
+                  }}
                 >
                   <SocialMediaComponent
                     media={link.media}

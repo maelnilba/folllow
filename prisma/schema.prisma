@@ -88,11 +88,12 @@ model Withdraw {
 }
 
 model Analytics {
-    id     String  @id @default(cuid())
-    userId String  @unique
-    user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-    views  View[]
-    clicks Click[]
+    id         String  @id @default(cuid())
+    userId     String  @unique
+    user       User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+    totalViews Int     @default(0)
+    views      View[]
+    clicks     Click[]
 
     @@index([userId])
 }
@@ -101,11 +102,15 @@ model View {
     id           Int       @id @default(autoincrement())
     analyticsId  String
     analytics    Analytics @relation(fields: [analyticsId], references: [id], onDelete: Cascade)
+    viewerIp     String
     created_at   DateTime  @default(now())
+    day          String
     slug         String
     from_country String?
+    from_city    String?
     had_adblock  Boolean   @default(false)
 
+    @@unique([viewerIp, day])
     @@index([analyticsId])
 }
 
@@ -113,7 +118,10 @@ model Click {
     id          Int       @id @default(autoincrement())
     analyticsId String
     analytics   Analytics @relation(fields: [analyticsId], references: [id], onDelete: Cascade)
+    viewerIp    String
     created_at  DateTime  @default(now())
+    day         String
+    slug        String
     element     String
 
     @@index([analyticsId])

@@ -45,7 +45,7 @@ const Index: NextPage<{
       </Head>
 
       <div className="flex min-h-screen flex-col items-center justify-center">
-        <div className="">
+        <div>
           <div className="text-6xl font-bold">Folllow.</div>
         </div>
         <div className="kard m-20 grid grid-cols-2 gap-4 p-10">

@@ -15,7 +15,7 @@ const Index: NextPage = () => {
       </Head>
 
       <div className="flex min-h-screen flex-col items-center justify-center">
-        <div className="">
+        <div>
           <div className="text-6xl font-bold">Folllow.</div>
           <div className="text-2xl font-bold">Auth error.</div>
         </div>

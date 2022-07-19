@@ -46,7 +46,12 @@ export const authRouter = createRouter()
               bio: true,
             },
           },
-          analytics: true,
+          analytics: {
+            include: {
+              views: true,
+              clicks: true,
+            },
+          },
           withdraw: true,
         },
       });

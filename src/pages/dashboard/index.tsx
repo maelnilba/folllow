@@ -1,6 +1,7 @@
 import type { NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
+import { memo, useMemo } from "react";
 import { InferQueryOutput, trpc } from "utils/trpc";
 import { z } from "zod";
 import { useZorm } from "react-zorm";
@@ -16,6 +17,9 @@ import { useRouter } from "next/router";
 
 import { DashboardNavbar } from "@components/navbar/dashboard-navbar";
 import ErrorLabel from "@components/error-label";
+
+import ParentSize from "@visx/responsive/lib/components/ParentSize";
+import ExampleBar from "@components/visx/bar";
 
 const Index: NextPage = () => {
   const { data: user, isLoading: userLoading } = trpc.useQuery([
@@ -89,7 +93,9 @@ const Index: NextPage = () => {
                       <div className="flex-1">
                         <DashboardTree tree={dashboard.tree} />
                       </div>
-                      <DashboardAnalytics />
+                      {dashboard.analytics && (
+                        <DashboardAnalytics analytics={dashboard.analytics} />
+                      )}
                     </div>
                   )}
                 </div>
@@ -202,7 +208,7 @@ const DashboardTree: React.FC<DashboardTreeProps> = (props) => {
             <div className="w-24 rounded-full bg-base-100"></div>
           </div>
         )}
-        <div className="">
+        <div>
           <Link href="/dashboard/me">
             <a className="text-xl font-bold hover:opacity-75">
               {props.tree?.slug}
@@ -235,13 +241,49 @@ const DashboardTree: React.FC<DashboardTreeProps> = (props) => {
   );
 };
 
-const DashboardAnalytics: React.FC = () => {
+type DashboardAnalyticsProps = Pick<
+  NonNullable<InferQueryOutput<"auth.get-dashboard">>,
+  "analytics"
+>;
+
+type GroupsMap = Map<
+  string,
+  {
+    date: Date;
+  }[]
+>;
+
+const DashboardAnalytics: React.FC<DashboardAnalyticsProps> = memo((props) => {
+  const viewAreas = useMemo(() => {
+    const map = props.analytics?.views.reduce((groups: GroupsMap, view) => {
+      const date = view.created_at.toISOString().split("T")[0]!;
+      if (!groups.has(date)) {
+        groups.set(date, []);
+      }
+      groups.get(date)?.push({ date: view.created_at });
+      return groups;
+    }, new Map());
+    if (!map) return [];
+    const result: { close: number; date: string }[] = [];
+    map.forEach((value, key) => {
+      result.push({
+        close: value.length,
+        date: key,
+      });
+    });
+    return result;
+  }, [props.analytics]);
+
   return (
-    <div className="kard flex flex-1 flex-row items-center p-6 ">
-      <div className="h-80"></div>
+    <div className="kard flex flex-1 flex-row items-center p-2 ">
+      <ParentSize>
+        {({ width, height }) => (
+          <ExampleBar width={width} height={height} data={viewAreas} />
+        )}
+      </ParentSize>
     </div>
   );
-};
+});
 
 //   type ServerSideProps = InferGetServerSidePropsType<typeof getServerSideProps>;
 //   export async function getServerSideProps(context: GetServerSidePropsContext) {
