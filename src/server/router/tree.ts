@@ -107,6 +107,12 @@ export const treeRouter = createRouter()
       slug: z.string().min(3).max(20).regex(/^@/),
     }),
     async resolve({ input, ctx }) {
+      await ctx.prisma.analytics.create({
+        data: {
+          userId: ctx.session.user.id,
+        },
+      });
+
       return await ctx.prisma.tree.create({
         data: {
           slug: input.slug,

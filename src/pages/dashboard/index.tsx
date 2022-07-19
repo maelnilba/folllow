@@ -86,7 +86,9 @@ const Index: NextPage = () => {
                     <DashboardCreate />
                   ) : (
                     <div className="flex flex-row space-x-4">
-                      <DashboardTree tree={dashboard.tree} />
+                      <div className="flex-1">
+                        <DashboardTree tree={dashboard.tree} />
+                      </div>
                       <DashboardAnalytics />
                     </div>
                   )}
@@ -113,10 +115,10 @@ const DashboardCreate: React.FC = () => {
   const client = trpc.useContext();
   const createTree = trpc.useMutation(["tree.create-tree"], {
     onSuccess: (data) => {
-      client.invalidateQueries(["auth.get-dashboard"]);
       router.push({
         pathname: "/dashboard/tree",
       });
+      client.invalidateQueries(["auth.get-dashboard"]);
     },
   });
 
@@ -141,7 +143,7 @@ const DashboardCreate: React.FC = () => {
               id="slug_id"
               type="text"
               name={zo.fields.slug()}
-              placeholder="@your_nickname"
+              placeholder="@folllow.link"
               className="input input-bordered w-full max-w-xs"
               onBlur={(event) => {
                 const validateBeforeTry = z
@@ -186,7 +188,7 @@ type DashboardTreeProps = Pick<
 
 const DashboardTree: React.FC<DashboardTreeProps> = (props) => {
   return (
-    <div className="kard flex flex-1 flex-row items-center p-6 ">
+    <div className=" kard flex flex-1 flex-row items-center p-6 ">
       <div className="flex flex-1 flex-row items-center space-x-4">
         {props.tree?.image ? (
           <div className="avatar h-24 w-24">
@@ -234,7 +236,11 @@ const DashboardTree: React.FC<DashboardTreeProps> = (props) => {
 };
 
 const DashboardAnalytics: React.FC = () => {
-  return <div className="flex flex-1 flex-col"></div>;
+  return (
+    <div className="kard flex flex-1 flex-row items-center p-6 ">
+      <div className="h-80"></div>
+    </div>
+  );
 };
 
 //   type ServerSideProps = InferGetServerSidePropsType<typeof getServerSideProps>;
