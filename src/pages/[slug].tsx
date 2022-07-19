@@ -42,11 +42,8 @@ const Index: NextPage<ServerSideProps> = ({ tree }) => {
         <div className="flex min-h-screen flex-col items-center bg-gradient-to-b from-base-100 to-base-300">
           <div className="flex w-full max-w-[760px] flex-col items-center space-y-4 p-10">
             {tree?.image ? (
-              <div className="avatar w-24 drop-shadow-2xl">
-                <img
-                  src={`${tree.image}?${performance.now()}`}
-                  className="h-auto w-auto rounded-full"
-                />
+              <div className="avatar h-24 w-24 drop-shadow-2xl">
+                <img src={tree.image} className="h-auto w-auto rounded-full" />
               </div>
             ) : (
               <div className="avatar placeholder drop-shadow-2xl">

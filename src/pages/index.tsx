@@ -34,11 +34,11 @@ const Index: NextPage = () => {
                   <Link href="/dashboard" passHref>
                     <a className="font-bold hover:opacity-75">Dashboard</a>
                   </Link>
-                  <div className="dropdown dropdown-end">
+                  <div className="dropdown-end dropdown">
                     {session.user?.image ? (
                       <label
                         tabIndex={0}
-                        className="avatar w-12 hover:cursor-pointer"
+                        className="avatar h-12 w-12 hover:cursor-pointer"
                       >
                         <img
                           src={session.user.image}

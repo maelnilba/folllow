@@ -69,6 +69,7 @@ model Tree {
     user        User    @relation(fields: [userId], references: [id], onDelete: Cascade)
     slug        String  @unique
     theme       String  @default("light")
+    imageKey    String?
     image       String?
     bio         String?
     links       Json?

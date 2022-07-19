@@ -43,7 +43,6 @@ const Index: NextPage = () => {
     ? JSON.parse(treeLocalStorage)
     : null;
   if (!tree) return <div>not tree dude</div>;
-  const time = performance.now();
   return (
     <>
       <Head>
@@ -76,10 +75,10 @@ const Index: NextPage = () => {
             </Tab.List>
             <Tab.Panels className="flex grow flex-col items-center justify-center self-stretch">
               <Tab.Panel className="flex grow flex-col self-stretch">
-                <WindowPreview tree={tree} time={time} />
+                <WindowPreview tree={tree} />
               </Tab.Panel>
               <Tab.Panel className="flex grow flex-col justify-center self-stretch">
-                <PhonePreview tree={tree} time={time} />
+                <PhonePreview tree={tree} />
               </Tab.Panel>
             </Tab.Panels>
           </Tab.Group>
@@ -91,41 +90,37 @@ const Index: NextPage = () => {
 
 interface PreviewProps {
   tree: treeLocalStorage;
-  time: number;
 }
 
-const PhonePreview = ({ tree, time }: PreviewProps) => {
+const PhonePreview = ({ tree }: PreviewProps) => {
   return (
     <div className="mockup-phone drop-shadow-lg">
       <div className="camera"></div>
       <div className="display">
         <div className="artboard artboard-demo phone-2">
-          <Preview tree={tree} time={time} />
+          <Preview tree={tree} />
         </div>
       </div>
     </div>
   );
 };
 
-const WindowPreview = ({ tree, time }: PreviewProps) => {
+const WindowPreview = ({ tree }: PreviewProps) => {
   return (
     <div className="mockup-window flex grow flex-col border border-base-200 bg-base-300 drop-shadow-lg">
-      <Preview tree={tree} time={time} />
+      <Preview tree={tree} />
     </div>
   );
 };
 
-const Preview = ({ tree, time }: PreviewProps) => {
+const Preview = ({ tree }: PreviewProps) => {
   return (
     <div data-theme={tree.theme} className="flex grow flex-col self-stretch">
       <div className="flex min-h-full flex-col items-center bg-gradient-to-b from-base-100 to-base-300">
         <div className="flex w-full max-w-[760px] flex-col items-center space-y-4 p-10">
           {tree?.image ? (
-            <div className="avatar w-24 drop-shadow-2xl">
-              <img
-                src={`${tree.image}?${time}`}
-                className="h-auto w-auto rounded-full"
-              />
+            <div className="avatar h-24 w-24 drop-shadow-2xl">
+              <img src={tree.image} className="h-auto w-auto rounded-full" />
             </div>
           ) : (
             <div className="avatar placeholder drop-shadow-2xl">

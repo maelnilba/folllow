@@ -11,6 +11,7 @@ import {
   AWS_S3_BUCKET_NAME,
 } from "../../../env";
 import type { Prisma } from "@prisma/client";
+import { nanoid } from "nanoid";
 
 const s3 = new aws.S3({
   accessKeyId: APP_AWS_ACCESS_KEY,
@@ -94,6 +95,7 @@ export const treeRouter = createRouter()
           links: true,
           bio: true,
           theme: true,
+          imageKey: true,
           image: true,
           ads_enabled: true,
         },
@@ -123,6 +125,7 @@ export const treeRouter = createRouter()
         .regex(/^@/, { message: "Must start with a @" }),
       bio: z.string().max(200).optional(),
       theme: z.enum(Themes),
+      imageKey: z.string().optional(),
       image: z
         .string()
         .transform(
@@ -152,22 +155,39 @@ export const treeRouter = createRouter()
         where: {
           userId: ctx.session.user.id,
         },
+        select: {
+          slug: true,
+          links: true,
+          bio: true,
+          theme: true,
+          imageKey: true,
+          image: true,
+          ads_enabled: true,
+        },
       });
     },
   })
   .mutation("get-presigned-post", {
     input: z.object({
-      filename: z.string(),
+      previousKey: z.string().nullable(),
     }),
     resolve({ input, ctx }) {
-      // @@ Wanna use userId but with some secret transform manipulation as so can't know user id from the link img
-      // thing like space and special characters can cause issues tho
-      // might be "better" to create a new one and delete the older one, rather than replace with the same id from aws
-      const imageId = ctx.session.user.id;
+      if (input.previousKey) {
+        s3.deleteObject(
+          {
+            Bucket: AWS_S3_BUCKET_NAME,
+            Key: input.previousKey,
+          },
+          (err) => {
+            console.log(err);
+          }
+        );
+      }
+      const key = nanoid();
       const post = s3.createPresignedPost({
         Bucket: AWS_S3_BUCKET_NAME,
         Fields: {
-          key: imageId,
+          key: key,
         },
         Expires: 60, // seconds
         Conditions: [
@@ -175,6 +195,6 @@ export const treeRouter = createRouter()
         ],
       });
 
-      return { imageId, post };
+      return { key, post };
     },
   });

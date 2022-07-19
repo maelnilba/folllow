@@ -43,7 +43,7 @@ const Index: NextPage = () => {
               <div className="flex flex-row">
                 <div className="flex flex-1 flex-row space-x-6">
                   {user?.image ? (
-                    <div className="avatar w-24">
+                    <div className="avatar h-24 w-24">
                       <img
                         src={user.image}
                         className="mask mask-hexagon h-auto w-auto rounded-full"
@@ -187,9 +187,9 @@ const DashboardTree: React.FC<DashboardTreeProps> = (props) => {
     <div className="kard flex flex-1 flex-row items-center p-6 ">
       <div className="flex flex-1 flex-row items-center space-x-4">
         {props.tree?.image ? (
-          <div className="avatar w-24">
+          <div className="avatar h-24 w-24">
             <img
-              src={`${props.tree.image}?${performance.now()}`}
+              src={props.tree.image}
               className="h-auto w-auto rounded-full"
             />
           </div>

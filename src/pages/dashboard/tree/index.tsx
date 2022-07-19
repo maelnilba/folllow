@@ -63,6 +63,7 @@ const postTreeSchema = z.object({
 });
 
 const Index: NextPage = () => {
+  const utils = trpc.useContext();
   const {
     data: tree,
     isLoading,
@@ -110,10 +111,10 @@ const Index: NextPage = () => {
     async onValidSubmit(e) {
       e.preventDefault();
       // alert(JSON.stringify(e.data, null, 2));
-      let url: string | undefined = undefined;
+      let imageKey: string | undefined = undefined;
 
       if (uploadImage.data !== undefined) {
-        const { post, imageId } = uploadImage.data;
+        const { post, key } = uploadImage.data;
 
         if (post !== undefined) {
           const formData = new FormData();
@@ -132,15 +133,16 @@ const Index: NextPage = () => {
                 method: "POST",
                 body: formData,
               });
-              url = imageId;
+              imageKey = key;
             }
           }
         }
       }
       postTree.mutate(
-        { ...e.data, image: url },
+        { ...e.data, image: imageKey, imageKey: imageKey },
         {
-          onSuccess() {
+          onSuccess(data) {
+            utils.setQueryData(["tree.get-my-tree"], data);
             if (toast.current) {
               toast.current.show();
             }
@@ -346,14 +348,14 @@ const Index: NextPage = () => {
                     <div className="kard flex flex-row items-center space-x-4 p-6 ">
                       <div className="self-start">
                         <div className="relative">
-                          <div className="avatar w-24">
+                          <div className="avatar h-24 w-24">
                             {tree?.image ? (
                               <img
                                 ref={imageRef}
                                 src={
                                   imageRef.current
                                     ? imageRef.current.src
-                                    : `${tree.image}?${performance.now()}`
+                                    : tree.image
                                 }
                                 className="h-auto w-auto rounded-full"
                               />
@@ -380,11 +382,9 @@ const Index: NextPage = () => {
                                   imageRef.current.src =
                                     URL.createObjectURL(file);
 
-                                  const filename = encodeURIComponent(
-                                    file.name
-                                  );
-
-                                  uploadImage.mutate({ filename });
+                                  uploadImage.mutate({
+                                    previousKey: tree.imageKey,
+                                  });
 
                                   treeStorage((storage) => {
                                     storage.image = URL.createObjectURL(file);
