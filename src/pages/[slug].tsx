@@ -57,7 +57,6 @@ const Index: NextPage<ServerSideProps> = ({ tree }) => {
           },
         })
       ).json();
-
       postView.mutate({
         has_adblock: hasAdblock,
         slug: tree.slug,

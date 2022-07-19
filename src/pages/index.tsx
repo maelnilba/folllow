@@ -16,12 +16,13 @@ const Index: NextPage = () => {
         <div className="flex flex-col px-24">
           <div className="flex flex-row items-center p-6">
             <div className="flew-row flex flex-1 items-center justify-start space-x-10">
-              <div className="text-4xl font-bold">Folllow</div>
-              <a className="font-bold hover:cursor-pointer hover:opacity-75">
+              <div className="btn no-animation rounded-full bg-slate-900 text-2xl normal-case">
+                Folllow.
+              </div>
+              <a className="font-medium hover:cursor-pointer hover:opacity-75">
                 Features
               </a>
             </div>
-
             <div className="flew-row flex items-center justify-start space-x-10">
               {!session ? (
                 <Link href="/sign-in" passHref>
@@ -32,7 +33,7 @@ const Index: NextPage = () => {
               ) : (
                 <div className="flex flex-row items-center space-x-8">
                   <Link href="/dashboard" passHref>
-                    <a className="font-bold hover:opacity-75">Dashboard</a>
+                    <a className=" font-medium hover:opacity-75">Dashboard</a>
                   </Link>
                   <div className="dropdown-end dropdown">
                     {session.user?.image ? (
@@ -67,6 +68,22 @@ const Index: NextPage = () => {
                   </div>
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+        <div className="hero bg-base-200">
+          <div className="hero-content text-center">
+            <div className="max-w-xl">
+              <h1 className="w-full animate-bg-linear rounded-lg bg-gradient-to-r from-green-400 via-pink-500 to-blue-500 bg-[length:400%] bg-clip-text text-8xl font-extrabold  text-transparent">
+                Folllow.
+              </h1>
+              <p className="py-6">
+                Because bad typos can happen{" "}
+                <span className="text-2xl">😮‍💨</span>
+              </p>
+              <button className="btn btn-primary normal-case">
+                Get Started
+              </button>
             </div>
           </div>
         </div>

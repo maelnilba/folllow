@@ -73,7 +73,8 @@ export const analyticsRouter = createRouter()
         .optional(),
     }),
     async resolve({ input, ctx }) {
-      ctx.prisma.analytics.update({
+      console.log("reach here", ctx.data.userId);
+      await ctx.prisma.analytics.update({
         where: {
           userId: ctx.data.userId,
         },
@@ -121,7 +122,7 @@ export const analyticsRouter = createRouter()
         throw new TRPCError({ code: "NOT_FOUND" });
       }
 
-      ctx.prisma.analytics.update({
+      await ctx.prisma.analytics.update({
         where: {
           userId: data.userId,
         },

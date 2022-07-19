@@ -31,6 +31,7 @@ const Index: NextPage = () => {
     isError: treeError,
   } = trpc.useQuery(["auth.get-dashboard"], {
     refetchOnWindowFocus: true,
+    staleTime: 0,
   });
 
   return (
@@ -124,7 +125,6 @@ const DashboardCreate: React.FC = () => {
       router.push({
         pathname: "/dashboard/tree",
       });
-      client.invalidateQueries(["auth.get-dashboard"]);
     },
   });
 
@@ -271,11 +271,12 @@ const DashboardAnalytics: React.FC<DashboardAnalyticsProps> = memo((props) => {
         date: key,
       });
     });
+    console.log(result);
     return result;
   }, [props.analytics]);
 
   return (
-    <div className="kard flex flex-1 flex-row items-center p-2 ">
+    <div className="flex min-h-[320px] flex-1 flex-row items-center rounded-2xl border-solid border-base-300 bg-base-200 p-2 ">
       <ParentSize>
         {({ width, height }) => (
           <ExampleBar width={width} height={height} data={viewAreas} />

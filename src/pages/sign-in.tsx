@@ -55,7 +55,7 @@ const Index: NextPage<{
                 className="btn btn-outline w-full gap-2 normal-case"
                 onClick={() =>
                   signIn(provider.id, {
-                    callbackUrl: "http://localhost:3000/dashboard",
+                    // callbackUrl: "http://localhost:3000/dashboard",
                   })
                 }
               >

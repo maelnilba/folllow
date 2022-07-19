@@ -4,12 +4,7 @@ import appleStock, { AppleStock } from "@visx/mock-data/lib/mocks/appleStock";
 import { curveMonotoneX } from "@visx/curve";
 import { GridRows, GridColumns } from "@visx/grid";
 import { scaleTime, scaleLinear } from "@visx/scale";
-import {
-  withTooltip,
-  Tooltip,
-  TooltipWithBounds,
-  defaultStyles,
-} from "@visx/tooltip";
+import { withTooltip, Tooltip, TooltipWithBounds } from "@visx/tooltip";
 import { WithTooltipProvidedProps } from "@visx/tooltip/lib/enhancers/withTooltip";
 import { localPoint } from "@visx/event";
 import { LinearGradient } from "@visx/gradient";
@@ -18,17 +13,16 @@ import { timeFormat } from "d3-time-format";
 
 type TooltipData = AppleStock;
 
-const stock = appleStock.slice(800);
+const b1 = "hsl(0, 0%, 100%)";
+const b2 = "hsl(0, 0%, 95%)";
+const b3 = "hsl(180, 2%, 90%)";
+const a = "hsl(174, 60%, 51%)";
+const ac = "hsl(175, 44%, 15%)";
+
 export const background = "#3b6978";
 export const background2 = "#204051";
 export const accentColor = "#edffea";
 export const accentColorDark = "#75daad";
-const tooltipStyles = {
-  ...defaultStyles,
-  background,
-  border: "1px solid white",
-  color: "white",
-};
 
 // util
 const formatDate = timeFormat("%b %d, '%y");
@@ -211,20 +205,21 @@ export default withTooltip<AreaProps, TooltipData>(
           <div>
             <TooltipWithBounds
               key={Math.random()}
-              top={tooltipTop - 12}
+              top={tooltipTop - 20}
               left={tooltipLeft + 12}
-              style={tooltipStyles}
+              className="pointer-events-none absolute rounded-sm border bg-slate-500 px-2 py-1 text-sm text-white drop-shadow "
+              style={{
+                backgroundColor: "bg-slate-500",
+              }}
             >
-              {`$${getStockValue(tooltipData)}`}
+              {`${getStockValue(tooltipData)}`}
             </TooltipWithBounds>
             <Tooltip
-              top={innerHeight + margin.top - 14}
+              top={innerHeight + margin.top + 4}
               left={tooltipLeft}
+              className="pointer-events-none absolute min-w-[72] -translate-x-1/2 rounded-sm border bg-white px-1 py-2 text-center text-sm text-slate-700 drop-shadow  "
               style={{
-                ...defaultStyles,
-                minWidth: 72,
-                textAlign: "center",
-                transform: "translateX(-50%)",
+                backgroundColor: "white",
               }}
             >
               {formatDate(getDate(tooltipData))}

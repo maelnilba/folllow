@@ -19,7 +19,7 @@ import {
 } from "../../../../env";
 // https://github.com/ndom91/next-auth-example-sign-in-page
 export const authOptions: NextAuthOptions = {
-  debug: false,
+  debug: true,
   pages: {
     signIn: "/sign-in",
     newUser: "/dashboard",

@@ -16,7 +16,7 @@ export const DashboardNavbar = () => {
       <div className="flew-row flex items-center justify-start space-x-10">
         <div className="flex flex-row items-center space-x-8">
           <Link href="/info/help" passHref>
-            <button className="btn btn-ghost font-bold normal-case">
+            <button className="btn btn-ghost font-semibold normal-case">
               Help
             </button>
           </Link>
