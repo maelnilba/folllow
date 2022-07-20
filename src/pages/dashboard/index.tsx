@@ -20,7 +20,6 @@ import { DashboardNavbar } from "@components/navbar/dashboard-navbar";
 import ErrorLabel from "@components/error-label";
 
 const Index: NextPage = () => {
-  const utils = trpc.useContext();
   const { data: user, isLoading: userLoading } = trpc.useQuery([
     "dashboard.get-user-info",
   ]);
@@ -31,11 +30,6 @@ const Index: NextPage = () => {
   } = trpc.useQuery(["dashboard.get-dashboard"], {
     refetchOnWindowFocus: true,
     staleTime: 0,
-    onSuccess(data) {
-      if (data?.analytics) {
-        utils.setQueryData(["analytics.get-analytics"], data.analytics);
-      }
-    },
   });
 
   return (
@@ -47,14 +41,14 @@ const Index: NextPage = () => {
       </Head>
 
       <div className="flex min-h-screen flex-col">
-        <div className="flex flex-col space-y-4 px-24">
+        <div className="flex flex-col space-y-4 px-4 sm:px-8 md:px-16 lg:px-24">
           <DashboardNavbar />
           <main>
             <div className=" kard flex flex-col p-6">
               <div className="flex flex-row">
                 <div className="flex flex-1 flex-row space-x-6">
                   {user?.image ? (
-                    <div className="avatar h-24 w-24">
+                    <div className="avatar h-16 w-16 sm:h-24 sm:w-24">
                       <img
                         src={user.image}
                         className="mask mask-hexagon h-auto w-auto rounded-full"
@@ -63,7 +57,7 @@ const Index: NextPage = () => {
                   ) : (
                     <div className="avatar placeholder">
                       <div
-                        className={`mask mask-hexagon w-24 rounded-full bg-base-100 ${
+                        className={`mask mask-hexagon w-16 rounded-full bg-base-100 sm:w-24 ${
                           userLoading && "animate-pulse"
                         }`}
                       ></div>
@@ -94,10 +88,8 @@ const Index: NextPage = () => {
                   {!dashboard.tree ? (
                     <DashboardCreate />
                   ) : (
-                    <div className="flex flex-row space-x-4">
-                      <div className="flex-1">
-                        <DashboardTree tree={dashboard.tree} />
-                      </div>
+                    <div className="flex flex-row flex-wrap gap-4">
+                      <DashboardTree tree={dashboard.tree} />
                       {dashboard.analytics && (
                         <DashboardAnalytics
                           analytics={dashboard.analytics}
@@ -200,10 +192,10 @@ type DashboardTreeProps = Pick<
 
 const DashboardTree: React.FC<DashboardTreeProps> = (props) => {
   return (
-    <div className=" kard flex flex-1 flex-row items-center p-6 ">
+    <div className=" kard flex flex-1 flex-row flex-wrap items-center gap-2 p-6 ">
       <div className="flex flex-1 flex-row items-center space-x-4">
         {props.tree?.image ? (
-          <div className="avatar h-24 w-24">
+          <div className="avatar h-16 w-16 sm:h-24 sm:w-24">
             <img
               src={props.tree.image}
               className="h-auto w-auto rounded-full"
@@ -223,11 +215,11 @@ const DashboardTree: React.FC<DashboardTreeProps> = (props) => {
           <div>{props.tree?.bio || "No bio yet"}</div>
         </div>
       </div>
-      <div className="flex flex-col justify-center space-y-4">
+      <div className="flex flex-row justify-center gap-2 lg:flex-col">
         <Link href="/dashboard/tree" passHref>
           <a
             role="button"
-            className="btn btn-outline btn-sm justify-start gap-2 normal-case"
+            className="btn btn-outline btn-sm flex-nowrap justify-start gap-2 normal-case"
           >
             <FontAwesomeIcon icon={faLayerGroup} />
             Manage
@@ -236,7 +228,7 @@ const DashboardTree: React.FC<DashboardTreeProps> = (props) => {
         <Link href="/dashboard/tree" passHref>
           <a
             role="button"
-            className="btn btn-outline btn-sm justify-start gap-2 normal-case"
+            className="btn btn-outline btn-sm flex-nowrap justify-start gap-2 normal-case"
           >
             <FontAwesomeIcon icon={faLink} />
             Link
@@ -340,7 +332,7 @@ const DashboardAnalytics: React.FC<DashboardAnalyticsProps> = (props) => {
 
   return (
     <div className="kard flex flex-1 flex-col space-y-2 p-2">
-      <div className="stats bg-base-200">
+      <div className="stats stats-vertical bg-base-200 lg:stats-horizontal">
         <div className="stat">
           <div className="stat-title font-medium">Total Clicks</div>
           <div className="stat-value text-primary">{totalMonthClicks}</div>
@@ -379,18 +371,25 @@ const DashboardAnalytics: React.FC<DashboardAnalyticsProps> = (props) => {
 
         <div className="stat">
           <div className="stat-title font-medium">Estimated Revenues</div>
-          <div className="stat-value text-neutral">
-            {props.withdrawEnabled ? (
+          {props.withdrawEnabled ? (
+            <div className="stat-value text-neutral">
               <p>{estimatedRevenues.toFixed(2)}$</p>
-            ) : (
-              <button>Disabled</button>
-            )}
-          </div>
+            </div>
+          ) : (
+            <div className="stat-value text-red-400 hover:underline hover:opacity-75">
+              <Link href="/info/help#payment" passHref>
+                <a>Disabled</a>
+              </Link>
+            </div>
+          )}
         </div>
       </div>
       <div className="flex flex-row-reverse">
         <Link href="/dashboard/analytics" passHref>
-          <a role="button" className="btn btn-outline btn-sm gap-2 normal-case">
+          <a
+            role="button"
+            className="btn btn-ghost btn-sm gap-2 normal-case text-primary"
+          >
             <FontAwesomeIcon icon={faChartSimple} />
             Analytics
           </a>

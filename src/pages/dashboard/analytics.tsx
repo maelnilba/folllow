@@ -45,7 +45,13 @@ const Index: NextPage = () => {
       <div className="flex min-h-screen flex-col">
         <div className="flex flex-col space-y-4 px-24">
           <DashboardNavbar />
-          <main>{analytics && <ViewAreas data={viewAreas} />}</main>
+          <main>
+            {analytics && (
+              <div>
+                <ViewAreas data={viewAreas} />
+              </div>
+            )}
+          </main>
         </div>
       </div>
     </>
