@@ -238,7 +238,7 @@ interface ViewAreasProps {
 
 export const ViewAreas: React.FC<ViewAreasProps> = (props) => {
   return (
-    <div className={`min-h-[${320}px]`}>
+    <div className="h-[320px]">
       <ParentSize>
         {({ width, height }) => (
           <Areas width={width} height={height} data={props.data} />

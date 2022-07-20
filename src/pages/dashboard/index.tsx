@@ -1,7 +1,7 @@
 import type { NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
-import { memo, useMemo } from "react";
+import { useMemo } from "react";
 import { InferQueryOutput, trpc } from "utils/trpc";
 import { z } from "zod";
 import { useZorm } from "react-zorm";
@@ -19,9 +19,8 @@ import { useRouter } from "next/router";
 import { DashboardNavbar } from "@components/navbar/dashboard-navbar";
 import ErrorLabel from "@components/error-label";
 
-import { ViewAreas } from "@components/visx/view-areas";
-
 const Index: NextPage = () => {
+  const utils = trpc.useContext();
   const { data: user, isLoading: userLoading } = trpc.useQuery([
     "auth.get-user-info",
   ]);
@@ -32,6 +31,11 @@ const Index: NextPage = () => {
   } = trpc.useQuery(["auth.get-dashboard"], {
     refetchOnWindowFocus: true,
     staleTime: 0,
+    onSuccess(data) {
+      if (data?.analytics) {
+        utils.setQueryData(["analytics.get-analytics"], data.analytics);
+      }
+    },
   });
 
   return (
@@ -245,56 +249,57 @@ type DashboardAnalyticsProps = Pick<
   "analytics"
 >;
 
-type GroupsMap = Map<
-  string,
-  {
-    date: Date;
-  }[]
->;
+const DashboardAnalytics: React.FC<DashboardAnalyticsProps> = (props) => {
+  const totalClicks = useMemo(() => {
+    return (
+      props.analytics?.clicks.reduce((acc: number, click) => acc + 1, 0) || 0
+    );
+  }, [props.analytics]);
 
-const DashboardAnalytics: React.FC<DashboardAnalyticsProps> = memo((props) => {
-  const viewAreas = useMemo(() => {
-    const map = props.analytics?.views.reduce((groups: GroupsMap, view) => {
-      const date = view.created_at.toISOString().split("T")[0]!;
-      if (!groups.has(date)) {
-        groups.set(date, []);
-      }
-      groups.get(date)?.push({ date: view.created_at });
-      return groups;
-    }, new Map());
-    if (!map) return [];
-    const result: { close: number; date: string }[] = [];
-    map.forEach((value, key) => {
-      result.push({
-        close: value.length,
-        date: key,
-      });
-    });
-    console.log(result);
-    return result;
+  const totalViews = useMemo(() => {
+    return (
+      props.analytics?.views.reduce((acc: number, view) => acc + 1, 0) || 0
+    );
+  }, [props.analytics]);
+
+  const estimatedRevenues = useMemo(() => {
+    return props.analytics?.clicks.reduce(
+      (acc: number, click) => (click.element === "ad" ? acc + 1 : acc),
+      0
+    );
   }, [props.analytics]);
 
   return (
-    <div className="flex flex-1 flex-col rounded-2xl border-solid border-base-300 bg-base-200 p-2 ">
-      <div className="flex flex-row items-center justify-between p-2">
-        <p className="text-lg font-bold">Views analytics</p>
+    <div className="kard flex flex-1 flex-col space-y-2 p-2">
+      <div className="stats bg-base-200">
+        <div className="stat">
+          <div className="stat-title font-medium">Total Clicks</div>
+          <div className="stat-value text-primary">{totalClicks}</div>
+          {/* <div className="stat-desc">21% more than last month</div> */}
+        </div>
+
+        <div className="stat">
+          <div className="stat-title font-medium">Page Views</div>
+          <div className="stat-value text-secondary">{totalViews}</div>
+          {/* <div className="stat-desc">21% more than last month</div> */}
+        </div>
+
+        <div className="stat">
+          <div className="stat-title font-medium">Estimated Revenues</div>
+          <div className="stat-value text-neutral">{estimatedRevenues}$</div>
+          {/* <div className="stat-desc">21% more than last month</div> */}
+        </div>
+      </div>
+      <div className="flex flex-row-reverse">
         <Link href="/dashboard/analytics" passHref>
           <a role="button" className="btn btn-outline btn-sm gap-2 normal-case">
             <FontAwesomeIcon icon={faChartSimple} />
-            All analytics
+            Analytics
           </a>
         </Link>
       </div>
-      <ViewAreas data={viewAreas} />
     </div>
   );
-});
-
-//   type ServerSideProps = InferGetServerSidePropsType<typeof getServerSideProps>;
-//   export async function getServerSideProps(context: GetServerSidePropsContext) {
-//     return {
-//       props: { },
-//     };
-//   }
+};
 
 export default Index;

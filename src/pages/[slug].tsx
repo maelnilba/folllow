@@ -36,8 +36,8 @@ const Index: NextPage<ServerSideProps> = ({ tree }) => {
 
   const adblockHoneyPotRef = useRef<HTMLImageElement | null>(null);
 
-  const postView = trpc.useMutation(["analytics.post-view"]);
-  const postClick = trpc.useMutation(["analytics.post-click"]);
+  const postView = trpc.useMutation(["page.post-view"]);
+  const postClick = trpc.useMutation(["page.post-click"]);
 
   useEffect(() => {
     if (useEffectCancelStrictMode === true) return;
