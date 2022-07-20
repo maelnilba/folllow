@@ -349,7 +349,9 @@ const Index: NextPage = () => {
                           zo.validation?.success === false ||
                           !!checkSlug.data?.issues.length
                         }
-                        className="btn gap-2 normal-case"
+                        className={`btn gap-2 normal-case ${
+                          postTree.isLoading ? "animate-pulse" : ""
+                        }`}
                       >
                         Save changes
                       </button>

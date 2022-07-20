@@ -8,6 +8,7 @@ import { useZorm } from "react-zorm";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
+  faChartSimple,
   faCircleUser,
   faLayerGroup,
   faLink,
@@ -18,8 +19,7 @@ import { useRouter } from "next/router";
 import { DashboardNavbar } from "@components/navbar/dashboard-navbar";
 import ErrorLabel from "@components/error-label";
 
-import ParentSize from "@visx/responsive/lib/components/ParentSize";
-import ExampleBar from "@components/visx/bar";
+import { ViewAreas } from "@components/visx/view-areas";
 
 const Index: NextPage = () => {
   const { data: user, isLoading: userLoading } = trpc.useQuery([
@@ -119,7 +119,6 @@ const createTreeSchema = z.object({
 
 const DashboardCreate: React.FC = () => {
   const router = useRouter();
-  const client = trpc.useContext();
   const createTree = trpc.useMutation(["tree.create-tree"], {
     onSuccess: (data) => {
       router.push({
@@ -276,12 +275,17 @@ const DashboardAnalytics: React.FC<DashboardAnalyticsProps> = memo((props) => {
   }, [props.analytics]);
 
   return (
-    <div className="flex min-h-[320px] flex-1 flex-row items-center rounded-2xl border-solid border-base-300 bg-base-200 p-2 ">
-      <ParentSize>
-        {({ width, height }) => (
-          <ExampleBar width={width} height={height} data={viewAreas} />
-        )}
-      </ParentSize>
+    <div className="flex flex-1 flex-col rounded-2xl border-solid border-base-300 bg-base-200 p-2 ">
+      <div className="flex flex-row items-center justify-between p-2">
+        <p className="text-lg font-bold">Views analytics</p>
+        <Link href="/dashboard/analytics" passHref>
+          <a role="button" className="btn btn-outline btn-sm gap-2 normal-case">
+            <FontAwesomeIcon icon={faChartSimple} />
+            All analytics
+          </a>
+        </Link>
+      </div>
+      <ViewAreas data={viewAreas} />
     </div>
   );
 });

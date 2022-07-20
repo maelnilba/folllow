@@ -10,6 +10,7 @@ import { localPoint } from "@visx/event";
 import { LinearGradient } from "@visx/gradient";
 import { max, extent, bisector } from "d3-array";
 import { timeFormat } from "d3-time-format";
+import { ParentSize } from "@visx/responsive";
 
 type TooltipData = AppleStock;
 
@@ -39,7 +40,7 @@ export type AreaProps = {
   data: typeof appleStock;
 };
 
-export default withTooltip<AreaProps, TooltipData>(
+export const Areas = withTooltip<AreaProps, TooltipData>(
   ({
     width,
     height,
@@ -212,7 +213,7 @@ export default withTooltip<AreaProps, TooltipData>(
                 backgroundColor: "bg-slate-500",
               }}
             >
-              {`${getStockValue(tooltipData)}`}
+              {`${getStockValue(tooltipData)} views`}
             </TooltipWithBounds>
             <Tooltip
               top={innerHeight + margin.top + 4}
@@ -230,3 +231,19 @@ export default withTooltip<AreaProps, TooltipData>(
     );
   }
 );
+
+interface ViewAreasProps {
+  data: typeof appleStock;
+}
+
+export const ViewAreas: React.FC<ViewAreasProps> = (props) => {
+  return (
+    <div className={`min-h-[${320}px]`}>
+      <ParentSize>
+        {({ width, height }) => (
+          <Areas width={width} height={height} data={props.data} />
+        )}
+      </ParentSize>
+    </div>
+  );
+};
