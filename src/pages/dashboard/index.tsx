@@ -257,8 +257,19 @@ interface DashboardAnalyticsProps {
   withdrawEnabled: boolean;
 }
 
+const PercentChange = (originalValue: number, newValue: number) => {
+  let value: number = 0;
+  if (newValue > originalValue) {
+    value = ((newValue - originalValue) / originalValue) * 100;
+  } else {
+    value = ((originalValue - newValue) / originalValue) * 100;
+  }
+
+  return value;
+};
+
 const DashboardAnalytics: React.FC<DashboardAnalyticsProps> = (props) => {
-  const totalClicks = useMemo(() => {
+  const totalMonthClicks = useMemo(() => {
     const now = new Date();
     let filteredMonth = props.analytics?.clicks.filter(
       (click) =>
@@ -269,13 +280,39 @@ const DashboardAnalytics: React.FC<DashboardAnalyticsProps> = (props) => {
     return filteredMonth?.length || 0;
   }, [props.analytics]);
 
-  const totalViews = useMemo(() => {
+  const totalLastMonthClicks = useMemo(() => {
+    const now = new Date();
+    const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+
+    let filteredMonth = props.analytics?.clicks.filter(
+      (click) =>
+        click.created_at.getMonth() === lastMonth.getMonth() &&
+        click.created_at.getFullYear() === lastMonth.getFullYear()
+    );
+
+    return filteredMonth?.length || 0;
+  }, [props.analytics]);
+
+  const totalMonthViews = useMemo(() => {
     const now = new Date();
     let filteredMonth = props.analytics?.views.filter(
       (view) =>
         view.created_at.getMonth() === now.getMonth() &&
         view.created_at.getFullYear() === now.getFullYear()
     );
+    return filteredMonth?.length || 0;
+  }, [props.analytics]);
+
+  const totalLastMonthViews = useMemo(() => {
+    const now = new Date();
+    const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+
+    let filteredMonth = props.analytics?.clicks.filter(
+      (click) =>
+        click.created_at.getMonth() === lastMonth.getMonth() &&
+        click.created_at.getFullYear() === lastMonth.getFullYear()
+    );
+
     return filteredMonth?.length || 0;
   }, [props.analytics]);
 
@@ -291,19 +328,53 @@ const DashboardAnalytics: React.FC<DashboardAnalyticsProps> = (props) => {
     return (filteredMonth?.length || 0) * AdSenseEstimationPerView;
   }, [props.analytics]);
 
+  const percentClicksThanLastMonth =
+    totalLastMonthClicks === 0
+      ? 0
+      : PercentChange(totalLastMonthClicks, totalMonthClicks);
+
+  const percentViewsThanLastMonth =
+    totalLastMonthViews === 0
+      ? 0
+      : PercentChange(totalLastMonthViews, totalMonthViews);
+
   return (
     <div className="kard flex flex-1 flex-col space-y-2 p-2">
       <div className="stats bg-base-200">
         <div className="stat">
           <div className="stat-title font-medium">Total Clicks</div>
-          <div className="stat-value text-primary">{totalClicks}</div>
-          {/* <div className="stat-desc">21% more than last month</div> */}
+          <div className="stat-value text-primary">{totalMonthClicks}</div>
+          <div className="stat-desc">
+            {percentClicksThanLastMonth > 0 && (
+              <p>
+                {percentClicksThanLastMonth.toFixed(2)}%{" "}
+                {totalLastMonthClicks === totalMonthClicks
+                  ? "Wow, the same of the last month !"
+                  : totalMonthClicks > totalLastMonthClicks
+                  ? "more"
+                  : "less"}{" "}
+                than last month
+              </p>
+            )}
+          </div>
         </div>
 
         <div className="stat">
           <div className="stat-title font-medium">Page Views</div>
-          <div className="stat-value text-secondary">{totalViews}</div>
-          {/* <div className="stat-desc">21% more than last month</div> */}
+          <div className="stat-value text-secondary">{totalMonthViews}</div>
+          <div className="stat-desc">
+            {percentViewsThanLastMonth > 0 && (
+              <p>
+                {percentViewsThanLastMonth.toFixed(2)}%{" "}
+                {totalLastMonthViews === totalMonthViews
+                  ? "Wow, the same of the last month !"
+                  : totalMonthViews > totalLastMonthViews
+                  ? "more"
+                  : "less"}{" "}
+                than last month
+              </p>
+            )}
+          </div>
         </div>
 
         <div className="stat">
@@ -315,7 +386,6 @@ const DashboardAnalytics: React.FC<DashboardAnalyticsProps> = (props) => {
               <button>Disabled</button>
             )}
           </div>
-          {/* <div className="stat-desc">21% more than last month</div> */}
         </div>
       </div>
       <div className="flex flex-row-reverse">

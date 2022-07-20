@@ -29,6 +29,12 @@ export const dashboardRouter = createRouter()
   })
   .query("get-dashboard", {
     async resolve({ ctx }) {
+      const now = new Date();
+      const firstDayOfLastMonth = new Date(
+        now.getFullYear(),
+        now.getMonth() - 1,
+        1
+      );
       return await ctx.prisma.user.findFirst({
         where: {
           id: ctx.session.user.id,
@@ -43,8 +49,20 @@ export const dashboardRouter = createRouter()
           },
           analytics: {
             include: {
-              views: true,
-              clicks: true,
+              views: {
+                where: {
+                  created_at: {
+                    gte: firstDayOfLastMonth,
+                  },
+                },
+              },
+              clicks: {
+                where: {
+                  created_at: {
+                    gte: firstDayOfLastMonth,
+                  },
+                },
+              },
             },
           },
           withdraw: true,
