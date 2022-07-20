@@ -6,10 +6,12 @@ import { authRouter } from "./auth";
 import { treeRouter } from "./tree";
 import { pageRouter } from "./page";
 import { analyticsRouter } from "./analytics";
+import { dashboardRouter } from "./dashboard";
 
 export const appRouter = createRouter()
   .transformer(superjson)
   .merge("auth.", authRouter)
+  .merge("dashboard.", dashboardRouter)
   .merge("tree.", treeRouter)
   .merge("page.", pageRouter)
   .merge("analytics.", analyticsRouter);

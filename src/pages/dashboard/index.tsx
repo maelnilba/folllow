@@ -22,13 +22,13 @@ import ErrorLabel from "@components/error-label";
 const Index: NextPage = () => {
   const utils = trpc.useContext();
   const { data: user, isLoading: userLoading } = trpc.useQuery([
-    "auth.get-user-info",
+    "dashboard.get-user-info",
   ]);
   const {
     data: dashboard,
     isLoading: treeLoading,
     isError: treeError,
-  } = trpc.useQuery(["auth.get-dashboard"], {
+  } = trpc.useQuery(["dashboard.get-dashboard"], {
     refetchOnWindowFocus: true,
     staleTime: 0,
     onSuccess(data) {
@@ -99,7 +99,10 @@ const Index: NextPage = () => {
                         <DashboardTree tree={dashboard.tree} />
                       </div>
                       {dashboard.analytics && (
-                        <DashboardAnalytics analytics={dashboard.analytics} />
+                        <DashboardAnalytics
+                          analytics={dashboard.analytics}
+                          withdrawEnabled={dashboard.withdraw ? true : false}
+                        />
                       )}
                     </div>
                   )}
@@ -191,7 +194,7 @@ const DashboardCreate: React.FC = () => {
 };
 
 type DashboardTreeProps = Pick<
-  NonNullable<InferQueryOutput<"auth.get-dashboard">>,
+  NonNullable<InferQueryOutput<"dashboard.get-dashboard">>,
   "tree"
 >;
 
@@ -244,29 +247,48 @@ const DashboardTree: React.FC<DashboardTreeProps> = (props) => {
   );
 };
 
-type DashboardAnalyticsProps = Pick<
-  NonNullable<InferQueryOutput<"auth.get-dashboard">>,
+type DashboardAnalytics = Pick<
+  NonNullable<InferQueryOutput<"dashboard.get-dashboard">>,
   "analytics"
 >;
 
+interface DashboardAnalyticsProps {
+  analytics: DashboardAnalytics["analytics"];
+  withdrawEnabled: boolean;
+}
+
 const DashboardAnalytics: React.FC<DashboardAnalyticsProps> = (props) => {
   const totalClicks = useMemo(() => {
-    return (
-      props.analytics?.clicks.reduce((acc: number, click) => acc + 1, 0) || 0
+    const now = new Date();
+    let filteredMonth = props.analytics?.clicks.filter(
+      (click) =>
+        click.created_at.getMonth() === now.getMonth() &&
+        click.created_at.getFullYear() === now.getFullYear()
     );
+
+    return filteredMonth?.length || 0;
   }, [props.analytics]);
 
   const totalViews = useMemo(() => {
-    return (
-      props.analytics?.views.reduce((acc: number, view) => acc + 1, 0) || 0
+    const now = new Date();
+    let filteredMonth = props.analytics?.views.filter(
+      (view) =>
+        view.created_at.getMonth() === now.getMonth() &&
+        view.created_at.getFullYear() === now.getFullYear()
     );
+    return filteredMonth?.length || 0;
   }, [props.analytics]);
 
   const estimatedRevenues = useMemo(() => {
-    return props.analytics?.clicks.reduce(
-      (acc: number, click) => (click.element === "ad" ? acc + 1 : acc),
-      0
+    const AdSenseEstimationPerView = 0.10404;
+    const now = new Date();
+    let filteredMonth = props.analytics?.views.filter(
+      (view) =>
+        view.created_at.getMonth() === now.getMonth() &&
+        view.created_at.getFullYear() === now.getFullYear()
     );
+
+    return (filteredMonth?.length || 0) * AdSenseEstimationPerView;
   }, [props.analytics]);
 
   return (
@@ -286,7 +308,13 @@ const DashboardAnalytics: React.FC<DashboardAnalyticsProps> = (props) => {
 
         <div className="stat">
           <div className="stat-title font-medium">Estimated Revenues</div>
-          <div className="stat-value text-neutral">{estimatedRevenues}$</div>
+          <div className="stat-value text-neutral">
+            {props.withdrawEnabled ? (
+              <p>{estimatedRevenues.toFixed(2)}$</p>
+            ) : (
+              <button>Disabled</button>
+            )}
+          </div>
           {/* <div className="stat-desc">21% more than last month</div> */}
         </div>
       </div>
