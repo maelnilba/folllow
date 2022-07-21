@@ -84,7 +84,7 @@ export default function DraggableList<T>(props: DraggableList<ContainsId<T>>) {
         <div className="flex">
           <button
             type="button"
-            className="btn gap-2 normal-case"
+            className="btn btn-ghost gap-2 normal-case"
             onClick={(event) => {
               event.stopPropagation();
               add();

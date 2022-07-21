@@ -104,7 +104,12 @@ export const treeRouter = createRouter()
   })
   .mutation("create-tree", {
     input: z.object({
-      slug: z.string().min(3).max(20).regex(/^@/),
+      slug: z
+        .string()
+        .min(3)
+        .max(20)
+        .regex(/^@/)
+        .regex(/[A-Za-z0-9!@#$%^&*()_+-=\[\]{};':"\\|,.<>?]/),
     }),
     async resolve({ input, ctx }) {
       await ctx.prisma.analytics.create({

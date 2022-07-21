@@ -18,6 +18,7 @@ import { useRouter } from "next/router";
 
 import { DashboardNavbar } from "@components/navbar/dashboard-navbar";
 import ErrorLabel from "@components/error-label";
+import nFormatter from "@components/analytics/nFormatter";
 
 const Index: NextPage = () => {
   const { data: user, isLoading: userLoading } = trpc.useQuery([
@@ -113,7 +114,10 @@ const createTreeSchema = z.object({
     .string()
     .min(3)
     .max(20)
-    .regex(/^@/, { message: "Must start with a @" }),
+    .regex(/^@/, { message: "Must start with a @" })
+    .regex(/[A-Za-z0-9!@#$%^&*()_+-=\[\]{};':"\\|,.<>?]/, {
+      message: "Only alphanumeric and specials characters",
+    }),
 });
 
 const DashboardCreate: React.FC = () => {
@@ -335,7 +339,9 @@ const DashboardAnalytics: React.FC<DashboardAnalyticsProps> = (props) => {
       <div className="stats stats-vertical bg-base-200 lg:stats-horizontal">
         <div className="stat">
           <div className="stat-title font-medium">Total Clicks</div>
-          <div className="stat-value text-primary">{totalMonthClicks}</div>
+          <div className="stat-value text-primary">
+            {nFormatter(totalMonthClicks, 1)}
+          </div>
           <div className="stat-desc">
             {percentClicksThanLastMonth > 0 && (
               <p>
@@ -353,7 +359,9 @@ const DashboardAnalytics: React.FC<DashboardAnalyticsProps> = (props) => {
 
         <div className="stat">
           <div className="stat-title font-medium">Page Views</div>
-          <div className="stat-value text-secondary">{totalMonthViews}</div>
+          <div className="stat-value text-secondary">
+            {nFormatter(totalMonthViews, 1)}
+          </div>
           <div className="stat-desc">
             {percentViewsThanLastMonth > 0 && (
               <p>

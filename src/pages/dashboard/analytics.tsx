@@ -5,6 +5,7 @@ import type { NextPage } from "next";
 import Head from "next/head";
 import { useMemo } from "react";
 import { trpc } from "utils/trpc";
+import nFormatter from "@components/analytics/nFormatter";
 
 type AreasMap = Map<
   string,
@@ -87,11 +88,13 @@ const Index: NextPage = () => {
           <DashboardNavbar />
           <main>
             {analytics && (
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1  gap-2 md:grid-cols-2">
                 <div className="stats overflow-visible shadow-md">
                   <div className="stat">
                     <div className="stat-title">Total Page Views</div>
-                    <div className="stat-value">{analytics.totalViews}</div>
+                    <div className="stat-value">
+                      {nFormatter(analytics.totalViews, 1)}
+                    </div>
                     <div className="min-w-0 py-2">
                       <ViewAreas data={viewAreas} />
                     </div>
@@ -99,8 +102,10 @@ const Index: NextPage = () => {
                 </div>
                 <div className="stats overflow-visible shadow-md">
                   <div className="stat">
-                    <div className="stat-title">Total Page Clicks</div>
-                    <div className="stat-value">{analytics.clicks.length}</div>
+                    <div className="stat-title">Total Clicks</div>
+                    <div className="stat-value">
+                      {nFormatter(analytics.clicks.length, 1)}
+                    </div>
                     <div className="min-w-0 py-2">
                       <ClicksBar data={clicksBar} />
                     </div>

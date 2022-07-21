@@ -2,19 +2,11 @@ import React from "react";
 import { BarGroupHorizontal, Bar } from "@visx/shape";
 import { Group } from "@visx/group";
 import { AxisLeft } from "@visx/axis";
-import {
-  withTooltip,
-  Tooltip,
-  TooltipWithBounds,
-  useTooltip,
-  useTooltipInPortal,
-  defaultStyles,
-} from "@visx/tooltip";
+import { useTooltip, useTooltipInPortal, defaultStyles } from "@visx/tooltip";
 import { scaleBand, scaleLinear, scaleOrdinal } from "@visx/scale";
 import { timeParse, timeFormat } from "d3-time-format";
 import { ParentSize } from "@visx/responsive";
 import { localPoint } from "@visx/event";
-import { SeriesPoint } from "@visx/shape/lib/types";
 
 interface Data extends Record<string, string | number> {
   date: string;
@@ -86,7 +78,6 @@ const HorizontalBar = ({
 
   const keys = Object.keys(data[0] || {}).filter((d) => d !== "date");
 
-  console.log({ keys, data });
   // accessors
   const getDate = (d: Data) => d.date;
 
@@ -124,7 +115,7 @@ const HorizontalBar = ({
           y={0}
           width={width}
           height={height}
-          fill={background}
+          fill="currentColor"
           rx={14}
         />
         <Group top={margin.top} left={margin.left}>
@@ -222,12 +213,7 @@ export const ClicksBar: React.FC<ClicksBarProps> = (props) => {
     <div className="h-[320px] w-auto min-w-0">
       <ParentSize>
         {({ width, height }) => (
-          <HorizontalBar
-            data={props.data}
-            width={width}
-            height={height}
-            events
-          />
+          <HorizontalBar data={props.data} width={width} height={height} />
         )}
       </ParentSize>
     </div>
