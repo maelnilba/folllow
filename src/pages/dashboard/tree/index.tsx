@@ -161,6 +161,8 @@ const Index: NextPage = () => {
     },
   });
 
+  // (window as any).zo = zo;
+
   const treeStorage = useCallback(
     (callback: (storage: treeLocalStorage) => treeLocalStorage): void => {
       if (typeof window === undefined) return;
@@ -187,7 +189,6 @@ const Index: NextPage = () => {
       </Head>
       <Toast
         options={{
-          position: "br",
           duration: 5000,
           transition: {
             duration: 0.2,
@@ -247,9 +248,6 @@ const Index: NextPage = () => {
                         });
                       }}
                       onReorder={(items) => {
-                        // items contains only id
-                        // might find a better ways to sort things
-
                         treeStorage((storage) => {
                           const storageLinks = storage.links;
                           if (!storageLinks) return storage;
@@ -347,10 +345,7 @@ const Index: NextPage = () => {
                       </Link>
                       <button
                         type="submit"
-                        disabled={
-                          zo.validation?.success === false ||
-                          !!checkSlug.data?.issues.length
-                        }
+                        disabled={!!checkSlug.data?.issues.length}
                         className={`btn gap-2 normal-case ${
                           postTree.isLoading ? "animate-pulse" : ""
                         }`}

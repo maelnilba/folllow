@@ -4,14 +4,12 @@ import {
   memo,
   useEffect,
   useImperativeHandle,
-  useMemo,
   useReducer,
   useRef,
   useState,
 } from "react";
 
 interface ToastOptions {
-  position: "tr" | "tl" | "br" | "bl";
   duration: number;
   transition: {
     duration: number;
@@ -62,15 +60,6 @@ export const Toast = memo(
         }
       };
     }, []);
-
-    // const position = useMemo(
-    //   () =>
-    //     [
-    //       props.options.position.includes("t") ? "top-0" : "bottom-0",
-    //       props.options.position.includes("r") ? "right-0" : "left-0",
-    //     ].join(" "),
-    //   [props.options.position]
-    // );
 
     return (
       <AnimatePresence initial={false}>
