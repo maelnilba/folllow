@@ -3,7 +3,7 @@ import { timeFormat } from "d3-time-format";
 import { NextApiRequest } from "next";
 import { SocialMedias } from "utils/shared";
 import { z } from "zod";
-import { createRouter } from "./context";
+import { createRouter } from "../context";
 
 const formatDate = timeFormat("%H, %B %d %Y"); // "18, June 30 2015"
 const randomIp = () =>

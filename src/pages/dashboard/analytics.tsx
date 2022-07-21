@@ -1,14 +1,23 @@
 import { DashboardNavbar } from "@components/navbar/dashboard-navbar";
-import { ViewAreas } from "@components/visx/view-areas";
+import { ClicksBar } from "@components/analytics/bar";
+import { ViewAreas } from "@components/analytics/areas";
 import type { NextPage } from "next";
 import Head from "next/head";
 import { useMemo } from "react";
 import { trpc } from "utils/trpc";
 
-type GroupsMap = Map<
+type AreasMap = Map<
   string,
   {
     date: Date;
+  }[]
+>;
+
+type BarMap = Map<
+  string,
+  {
+    date: Date;
+    element: string;
   }[]
 >;
 
@@ -16,8 +25,9 @@ const Index: NextPage = () => {
   const { data: analytics } = trpc.useQuery(["analytics.get-analytics"]);
 
   const viewAreas = useMemo(() => {
-    const map = analytics?.views.reduce((groups: GroupsMap, view) => {
-      const date = view.created_at.toISOString().split("T")[0]!;
+    const map = analytics?.views.reduce((groups: AreasMap, view) => {
+      const date = view.created_at.toISOString().split("T")[0];
+      if (!date) return groups;
       if (!groups.has(date)) {
         groups.set(date, []);
       }
@@ -35,6 +45,36 @@ const Index: NextPage = () => {
     return result;
   }, [analytics]);
 
+  const clicksBar = useMemo(() => {
+    const map = analytics?.clicks.reduce((groups: BarMap, click) => {
+      const date = new Date(click.created_at.setDate(1))
+        .toISOString()
+        .split("T")[0];
+      if (!date) return groups;
+      if (!groups.has(date)) {
+        groups.set(date, []);
+      }
+      groups
+        .get(date)
+        ?.push({ date: click.created_at, element: click.element });
+      return groups;
+    }, new Map());
+    if (!map) return [];
+    const result: { date: string; [key: string]: string }[] = [];
+    map.forEach((value, key) => {
+      const elements = new Map<string, number>();
+      value.forEach((val) => {
+        elements.set(val.element, (elements.get(val.element) ?? 0) + 1);
+      });
+
+      result.push({
+        date: key,
+        ...Object.fromEntries(elements),
+      });
+    });
+    return result;
+  }, [analytics]);
+
   return (
     <>
       <Head>
@@ -43,12 +83,29 @@ const Index: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <div className="flex min-h-screen flex-col">
-        <div className="flex flex-col space-y-4 px-24">
+        <div className="flex flex-col space-y-4 px-4 sm:px-8 md:px-16 lg:px-24">
           <DashboardNavbar />
           <main>
             {analytics && (
-              <div>
-                <ViewAreas data={viewAreas} />
+              <div className="grid grid-cols-2 gap-2">
+                <div className="stats overflow-visible shadow-md">
+                  <div className="stat">
+                    <div className="stat-title">Total Page Views</div>
+                    <div className="stat-value">{analytics.totalViews}</div>
+                    <div className="min-w-0 py-2">
+                      <ViewAreas data={viewAreas} />
+                    </div>
+                  </div>
+                </div>
+                <div className="stats overflow-visible shadow-md">
+                  <div className="stat">
+                    <div className="stat-title">Total Page Clicks</div>
+                    <div className="stat-value">{analytics.clicks.length}</div>
+                    <div className="min-w-0 py-2">
+                      <ClicksBar data={clicksBar} />
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
           </main>

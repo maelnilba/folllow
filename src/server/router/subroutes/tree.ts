@@ -1,6 +1,6 @@
-import { createRouter } from "./context";
+import { createRouter } from "../context";
 import { z } from "zod";
-import { SocialMedias, Themes } from "../../utils/shared";
+import { SocialMedias, Themes } from "../../../utils/shared";
 import { TRPCError } from "@trpc/server";
 import { createCustomIssues } from "react-zorm";
 import aws from "aws-sdk";
@@ -9,7 +9,7 @@ import {
   APP_AWS_REGION,
   APP_AWS_SECRET_KEY,
   AWS_S3_BUCKET_NAME,
-} from "../../../env";
+} from "../../../../env";
 import type { Prisma } from "@prisma/client";
 import { nanoid } from "nanoid";
 

@@ -1,6 +1,5 @@
 import React, { useMemo, useCallback } from "react";
 import { AreaClosed, Line, Bar } from "@visx/shape";
-import appleStock, { AppleStock } from "@visx/mock-data/lib/mocks/appleStock";
 import { curveMonotoneX } from "@visx/curve";
 import { GridRows, GridColumns } from "@visx/grid";
 import { scaleTime, scaleLinear } from "@visx/scale";
@@ -12,7 +11,12 @@ import { max, extent, bisector } from "d3-array";
 import { timeFormat } from "d3-time-format";
 import { ParentSize } from "@visx/responsive";
 
-type TooltipData = AppleStock;
+interface Data {
+  date: string;
+  close: number;
+}
+
+type TooltipData = Data;
 
 const b1 = "hsl(0, 0%, 100%)";
 const b2 = "hsl(0, 0%, 95%)";
@@ -29,18 +33,18 @@ export const accentColorDark = "#75daad";
 const formatDate = timeFormat("%b %d, '%y");
 
 // accessors
-const getDate = (d: AppleStock) => new Date(d.date);
-const getStockValue = (d: AppleStock) => d.close;
-const bisectDate = bisector<AppleStock, Date>((d) => new Date(d.date)).left;
+const getDate = (d: Data) => new Date(d.date);
+const getStockValue = (d: Data) => d.close;
+const bisectDate = bisector<Data, Date>((d) => new Date(d.date)).left;
 
 export type AreaProps = {
   width: number;
   height: number;
   margin?: { top: number; right: number; bottom: number; left: number };
-  data: typeof appleStock;
+  data: Data[];
 };
 
-export const Areas = withTooltip<AreaProps, TooltipData>(
+const Areas = withTooltip<AreaProps, TooltipData>(
   ({
     width,
     height,
@@ -147,7 +151,7 @@ export const Areas = withTooltip<AreaProps, TooltipData>(
             strokeOpacity={0.2}
             pointerEvents="none"
           />
-          <AreaClosed<AppleStock>
+          <AreaClosed<Data>
             data={data}
             x={(d) => dateScale(getDate(d)) ?? 0}
             y={(d) => stockValueScale(getStockValue(d)) ?? 0}
@@ -233,12 +237,12 @@ export const Areas = withTooltip<AreaProps, TooltipData>(
 );
 
 interface ViewAreasProps {
-  data: typeof appleStock;
+  data: Data[];
 }
 
 export const ViewAreas: React.FC<ViewAreasProps> = (props) => {
   return (
-    <div className="h-[320px]">
+    <div className="h-[320px] w-auto min-w-0">
       <ParentSize>
         {({ width, height }) => (
           <Areas width={width} height={height} data={props.data} />

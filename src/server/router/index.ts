@@ -2,11 +2,11 @@
 import { createRouter } from "./context";
 import superjson from "superjson";
 
-import { authRouter } from "./auth";
-import { treeRouter } from "./tree";
-import { pageRouter } from "./page";
-import { analyticsRouter } from "./analytics";
-import { dashboardRouter } from "./dashboard";
+import { authRouter } from "./subroutes/auth";
+import { treeRouter } from "./subroutes/tree";
+import { pageRouter } from "./subroutes/page";
+import { analyticsRouter } from "./subroutes/analytics";
+import { dashboardRouter } from "./subroutes/dashboard";
 
 export const appRouter = createRouter()
   .transformer(superjson)
