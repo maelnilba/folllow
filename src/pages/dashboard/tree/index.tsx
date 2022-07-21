@@ -17,7 +17,7 @@ import { useCallback, useMemo, useRef, useState } from "react";
 import DraggableList from "@components/draggable-list";
 import { SocialMediaCombobox } from "@components/combobox";
 import { z } from "zod";
-import { useValue, useZorm } from "react-zorm";
+import { useZorm } from "react-zorm";
 import ErrorLabel from "@components/error-label";
 import { Toast, ToastElement } from "@components/toast";
 
@@ -143,7 +143,7 @@ const Index: NextPage = () => {
         {
           onSuccess(data) {
             utils.setQueryData(["tree.get-my-tree"], data);
-            utils.setQueryData(["auth.get-dashboard"], (infos) => ({
+            utils.setQueryData(["dashboard.get-dashboard"], (infos) => ({
               ...infos!,
               tree: {
                 bio: data.bio,
@@ -495,39 +495,7 @@ const Index: NextPage = () => {
                               theme === currentTheme ? "ring-2" : ""
                             } overflow-hidden rounded-lg border border-base-content/20 outline-2 outline-offset-2 outline-base-content ring-primary hover:border-base-content/40`}
                           >
-                            <div className="w-full cursor-pointer bg-base-100 font-sans text-base-content">
-                              <div className="grid grid-cols-5 grid-rows-3">
-                                <div className="col-start-1 row-span-2 row-start-1 bg-base-200"></div>
-                                <div className="col-start-1 row-start-3 bg-base-300"></div>
-                                <div className="col-span-4 col-start-2 row-span-3 row-start-1 flex flex-col gap-1 bg-base-100 p-2">
-                                  <div className="font-bold capitalize">
-                                    {theme}
-                                  </div>
-                                  <div className="flex flex-wrap gap-1">
-                                    <div className="flex aspect-square w-5 items-center justify-center rounded bg-primary lg:w-6">
-                                      <div className="text-sm font-bold text-primary-content">
-                                        A
-                                      </div>
-                                    </div>
-                                    <div className="flex aspect-square w-5 items-center justify-center rounded bg-secondary lg:w-6">
-                                      <div className="text-sm font-bold text-secondary-content">
-                                        A
-                                      </div>
-                                    </div>
-                                    <div className="flex aspect-square w-5 items-center justify-center rounded bg-accent lg:w-6">
-                                      <div className="text-sm font-bold text-accent-content">
-                                        A
-                                      </div>
-                                    </div>
-                                    <div className="flex aspect-square w-5 items-center justify-center rounded bg-neutral lg:w-6">
-                                      <div className="text-sm font-bold text-neutral-content">
-                                        A
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
+                            <ThemePreview theme={theme} />
                           </button>
                         ))}
                       </div>
@@ -562,6 +530,43 @@ const Index: NextPage = () => {
         </div>
       </div>
     </>
+  );
+};
+
+const ThemePreview = ({ theme }: { theme: Theme }) => {
+  return (
+    <div className="w-full cursor-pointer space-y-1 bg-gradient-to-b from-base-100 to-base-300 p-4">
+      <div className="font-bold capitalize">{theme}</div>
+      <div className="btn no-animation btn-md">Folllow</div>
+    </div>
+  );
+};
+
+const DaisyUIThemePreview = ({ theme }: { theme: Theme }) => {
+  return (
+    <div className="w-full cursor-pointer bg-base-100 font-sans text-base-content">
+      <div className="grid grid-cols-5 grid-rows-3">
+        <div className="col-start-1 row-span-2 row-start-1 bg-base-200"></div>
+        <div className="col-start-1 row-start-3 bg-base-300"></div>
+        <div className="col-span-4 col-start-2 row-span-3 row-start-1 flex flex-col gap-1 bg-base-100 p-2">
+          <div className="font-bold capitalize">{theme}</div>
+          <div className="flex flex-wrap gap-1">
+            <div className="flex aspect-square w-5 items-center justify-center rounded bg-primary lg:w-6">
+              <div className="text-sm font-bold text-primary-content">A</div>
+            </div>
+            <div className="flex aspect-square w-5 items-center justify-center rounded bg-secondary lg:w-6">
+              <div className="text-sm font-bold text-secondary-content">A</div>
+            </div>
+            <div className="flex aspect-square w-5 items-center justify-center rounded bg-accent lg:w-6">
+              <div className="text-sm font-bold text-accent-content">A</div>
+            </div>
+            <div className="flex aspect-square w-5 items-center justify-center rounded bg-neutral lg:w-6">
+              <div className="text-sm font-bold text-neutral-content">A</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 
