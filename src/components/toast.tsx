@@ -63,14 +63,14 @@ export const Toast = memo(
       };
     }, []);
 
-    const position = useMemo(
-      () =>
-        [
-          props.options.position.includes("t") ? "top-0" : "bottom-0",
-          props.options.position.includes("r") ? "right-0" : "left-0",
-        ].join(" "),
-      [props.options.position]
-    );
+    // const position = useMemo(
+    //   () =>
+    //     [
+    //       props.options.position.includes("t") ? "top-0" : "bottom-0",
+    //       props.options.position.includes("r") ? "right-0" : "left-0",
+    //     ].join(" "),
+    //   [props.options.position]
+    // );
 
     return (
       <AnimatePresence initial={false}>
@@ -83,7 +83,6 @@ export const Toast = memo(
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className={`fixed ${position} p-2`}
           >
             {props.children}
           </motion.div>

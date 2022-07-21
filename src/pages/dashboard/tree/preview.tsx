@@ -110,8 +110,8 @@ const WindowPreview = ({ tree }: PreviewProps) => {
     <div className="h-full">
       <div className="mockup-window relative h-full border border-base-200 bg-base-300 drop-shadow-lg">
         <div className="absolute top-0 box-border h-full w-full overflow-hidden pt-12">
-          <div className="relative max-h-full overflow-auto">
-            <div className="h-full">
+          <div className="relative h-screen max-h-full overflow-auto ">
+            <div className="flex min-h-full flex-col">
               <Preview tree={tree} />
             </div>
           </div>
@@ -123,10 +123,13 @@ const WindowPreview = ({ tree }: PreviewProps) => {
 
 const Preview = ({ tree }: PreviewProps) => {
   return (
-    <div className="relative max-h-full w-full overflow-auto ">
-      <div data-theme={tree.theme} className="flex grow flex-col self-stretch">
-        <div className="flex min-h-full flex-col items-center bg-gradient-to-b from-base-100 to-base-300">
-          <div className="flex w-full max-w-[760px] flex-col items-center space-y-4 p-10">
+    <div className="relative flex min-h-full w-full grow flex-col overflow-auto">
+      <div
+        data-theme={tree.theme}
+        className="flex min-h-fit grow flex-col self-stretch bg-red-400"
+      >
+        <div className="flex grow flex-col items-center bg-gradient-to-b from-base-100 to-base-300">
+          <div className="flex min-h-full w-full max-w-[760px] flex-col items-center space-y-4 p-10">
             {tree?.image ? (
               <div className="avatar h-24 w-24 drop-shadow-2xl">
                 <img src={tree.image} className="h-auto w-auto rounded-full" />

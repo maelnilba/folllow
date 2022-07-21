@@ -195,26 +195,28 @@ const Index: NextPage = () => {
         }}
         ref={toast}
       >
-        <div className="alert alert-success shadow-lg">
-          <div>
-            <FontAwesomeIcon
-              onClick={(event) => {
-                event.stopPropagation();
-                toast.current?.hide();
-              }}
-              icon={faXmark}
-              className="opacity-75 hover:cursor-pointer hover:opacity-50 active:opacity-25"
-            />
+        <div className="toast toast-end">
+          <div className="alert alert-success shadow-lg">
             <div>
-              <h3 className="font-bold">Successfull change!</h3>
+              <FontAwesomeIcon
+                onClick={(event) => {
+                  event.stopPropagation();
+                  toast.current?.hide();
+                }}
+                icon={faXmark}
+                className="opacity-75 hover:cursor-pointer hover:opacity-50 active:opacity-25"
+              />
+              <div>
+                <h3 className="font-bold">Successfull change!</h3>
+              </div>
             </div>
-          </div>
-          <div className="flex-none">
-            <Link href={`/dashboard/me`}>
-              <a role="button" className="btn btn-outline btn-sm normal-case">
-                View changes
-              </a>
-            </Link>
+            <div className="flex-none">
+              <Link href={`/dashboard/me`}>
+                <a role="button" className="btn btn-outline btn-sm normal-case">
+                  View changes
+                </a>
+              </Link>
+            </div>
           </div>
         </div>
       </Toast>
@@ -490,12 +492,13 @@ const Index: NextPage = () => {
                                 return storage;
                               });
                             }}
-                            data-theme={theme}
                             className={`${
                               theme === currentTheme ? "ring-2" : ""
-                            } overflow-hidden rounded-lg border border-base-content/20 outline-2 outline-offset-2 outline-base-content ring-primary hover:border-base-content/40`}
+                            } overflow-hidden rounded-lg  ring-primary `}
                           >
-                            <ThemePreview theme={theme} />
+                            <div data-theme={theme}>
+                              <ThemePreview theme={theme} />
+                            </div>
                           </button>
                         ))}
                       </div>
@@ -535,9 +538,9 @@ const Index: NextPage = () => {
 
 const ThemePreview = ({ theme }: { theme: Theme }) => {
   return (
-    <div className="w-full cursor-pointer space-y-1 bg-gradient-to-b from-base-100 to-base-300 p-4">
+    <div className="w-full cursor-pointer space-y-1 bg-gradient-to-b from-base-100 via-base-200 to-base-300 p-4">
       <div className="font-bold capitalize">{theme}</div>
-      <div className="btn no-animation btn-md">Folllow</div>
+      <div className="btn no-animation btn-md normal-case">Folllow.</div>
     </div>
   );
 };
