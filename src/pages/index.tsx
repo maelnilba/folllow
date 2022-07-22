@@ -4,7 +4,8 @@ import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
 
 const Index: NextPage = () => {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
+
   return (
     <>
       <Head>
@@ -24,48 +25,60 @@ const Index: NextPage = () => {
               </a>
             </div>
             <div className="flew-row flex items-center justify-start space-x-10">
-              {!session ? (
-                <Link href="/sign-in" passHref>
-                  <a role="button" className="btn btn-primary normal-case">
-                    Sign In
-                  </a>
-                </Link>
+              {status === "loading" ? (
+                <div></div>
               ) : (
-                <div className="flex flex-row items-center space-x-8">
-                  <Link href="/dashboard" passHref>
-                    <a className=" font-medium hover:opacity-75">Dashboard</a>
-                  </Link>
-                  <div className="dropdown-end dropdown">
-                    {session.user?.image ? (
-                      <label
-                        tabIndex={0}
-                        className="avatar h-12 w-12 hover:cursor-pointer"
-                      >
-                        <img
-                          src={session.user.image}
-                          className="mask mask-hexagon h-auto w-auto"
-                        />
-                      </label>
-                    ) : (
-                      <label
-                        tabIndex={0}
-                        className="avatar placeholder w-12 hover:cursor-pointer"
-                      >
-                        <div className="mask mask-hexagon w-24 rounded-full bg-base-200"></div>
-                      </label>
-                    )}
-                    <ul
-                      tabIndex={0}
-                      className="dropdown-content menu rounded-box w-52 bg-base-100 p-2 shadow"
-                    >
-                      <li role="button">
-                        <a>Settings</a>
-                      </li>
-                      <li role="button" onClick={() => signOut()}>
-                        <a>Log out</a>
-                      </li>
-                    </ul>
-                  </div>
+                <div>
+                  {status === "unauthenticated" ? (
+                    <Link href="/sign-in" passHref>
+                      <a role="button" className="btn btn-primary normal-case">
+                        Sign In
+                      </a>
+                    </Link>
+                  ) : (
+                    <div className="flex flex-row items-center space-x-8">
+                      <Link href="/dashboard" passHref>
+                        <a className=" font-medium hover:opacity-75">
+                          Dashboard
+                        </a>
+                      </Link>
+                      <div className="dropdown-end dropdown">
+                        <div className="relative h-10 w-10">
+                          <div className="absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 ">
+                            {session?.user?.image ? (
+                              <label
+                                tabIndex={0}
+                                className="avatar h-12 w-12 hover:cursor-pointer"
+                              >
+                                <img
+                                  src={session?.user.image}
+                                  className="mask mask-hexagon h-auto w-auto"
+                                />
+                              </label>
+                            ) : (
+                              <label
+                                tabIndex={0}
+                                className="avatar placeholder w-12 hover:cursor-pointer"
+                              >
+                                <div className="mask mask-hexagon w-12 rounded-full bg-base-200"></div>
+                              </label>
+                            )}
+                          </div>
+                        </div>
+                        <ul
+                          tabIndex={0}
+                          className="dropdown-content menu rounded-box w-52 bg-base-100 p-2 shadow"
+                        >
+                          <li role="button">
+                            <a>Settings</a>
+                          </li>
+                          <li role="button" onClick={() => signOut()}>
+                            <a>Log out</a>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

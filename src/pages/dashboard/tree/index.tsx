@@ -337,7 +337,7 @@ const Index: NextPage = () => {
                           target="_blank"
                           rel="noreferrer"
                           role="button"
-                          className="btn btn-outline gap-2 normal-case"
+                          className="btn btn-outline btn-secondary gap-2 normal-case"
                         >
                           <FontAwesomeIcon icon={faEye} />
                           Live Preview
@@ -508,7 +508,7 @@ const Index: NextPage = () => {
                             type="checkbox"
                             name={zo.fields.ads_enabled()}
                             defaultChecked={tree.ads_enabled || true}
-                            className="checkbox"
+                            className="checkbox checkbox-primary"
                             onChange={(event) => {
                               event.stopPropagation();
                               treeStorage((storage) => {

@@ -26,8 +26,8 @@ const Index: NextPage = () => {
   ]);
   const {
     data: dashboard,
-    isLoading: treeLoading,
-    isError: treeError,
+    isLoading: dashboardLoading,
+    isError: dashboardError,
   } = trpc.useQuery(["dashboard.get-dashboard"], {
     refetchOnWindowFocus: true,
     staleTime: 0,
@@ -84,7 +84,7 @@ const Index: NextPage = () => {
               </div>
             </div>
             <div className="flex flex-col">
-              {dashboard && (
+              {dashboard ? (
                 <div className="flex flex-col py-6">
                   {!dashboard.tree ? (
                     <DashboardCreate />
@@ -100,6 +100,21 @@ const Index: NextPage = () => {
                     </div>
                   )}
                 </div>
+              ) : (
+                <>
+                  {dashboardLoading && (
+                    <div className="flex flex-col py-6">
+                      <div className="flex animate-pulse flex-row flex-wrap gap-4 opacity-50">
+                        <div className="kard flex flex-1 flex-row flex-wrap items-center gap-2 p-6 pb-8 ">
+                          <div className="avatar placeholder">
+                            <div className="w-24 rounded-full bg-base-100"></div>
+                          </div>
+                        </div>
+                        <div className="kard flex flex-1 flex-col space-y-2 p-2 pb-8"></div>
+                      </div>
+                    </div>
+                  )}
+                </>
               )}
             </div>
           </main>
