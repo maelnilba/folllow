@@ -346,7 +346,7 @@ const Index: NextPage = () => {
                       <button
                         type="submit"
                         disabled={!!checkSlug.data?.issues.length}
-                        className={`btn gap-2 normal-case ${
+                        className={`btn btn-primary gap-2 normal-case ${
                           postTree.isLoading ? "animate-pulse" : ""
                         }`}
                       >

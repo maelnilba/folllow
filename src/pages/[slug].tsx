@@ -40,9 +40,9 @@ const Index: NextPage<ServerSideProps> = ({ tree }) => {
   const postClick = trpc.useMutation(["page.post-click"]);
 
   useEffect(() => {
+    if (!adblockHoneyPotRef.current) return;
     if (useEffectCancelStrictMode === true) return;
     useEffectCancelStrictMode = true;
-
     const asyncEffect = async () => {
       const hasAdblock = adblockHoneyPotRef.current
         ? adblockHoneyPotRef.current.clientHeight > 0

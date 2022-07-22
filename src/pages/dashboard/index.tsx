@@ -166,7 +166,7 @@ const DashboardCreate: React.FC = () => {
             />
             <button
               type="submit"
-              className="btn normal-case"
+              className="btn btn-primary normal-case"
               disabled={
                 zo.validation?.success === false ||
                 !!checkSlug.data?.issues.length
