@@ -1,4 +1,4 @@
-import type { NextPage } from "next";
+import type { GetServerSideProps, NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
 import { useMemo, useReducer } from "react";
@@ -12,7 +12,6 @@ import {
   faCircleUser,
   faClipboardCheck,
   faLayerGroup,
-  faLink,
 } from "@fortawesome/free-solid-svg-icons";
 
 import { useRouter } from "next/router";
@@ -22,6 +21,8 @@ import ErrorLabel from "@components/error-label";
 import nFormatter from "@components/analytics/nFormatter";
 import { faClipboard } from "@fortawesome/free-regular-svg-icons";
 import { AnimatePresence, motion } from "framer-motion";
+import { unstable_getServerSession } from "next-auth/next";
+import { authOptions } from "pages/api/auth/[...nextauth]";
 
 const Index: NextPage = () => {
   const { data: user, isLoading: userLoading } = trpc.useQuery([
@@ -444,6 +445,26 @@ const DashboardAnalytics: React.FC<DashboardAnalyticsProps> = (props) => {
       </div>
     </div>
   );
+};
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const session = await unstable_getServerSession(
+    context.req,
+    context.res,
+    authOptions
+  );
+  if (!session) {
+    return {
+      redirect: {
+        destination: `/sign-in`,
+        permanent: false,
+      },
+    };
+  }
+
+  return {
+    props: {},
+  };
 };
 
 export default Index;

@@ -7,9 +7,3 @@ declare module "next-auth" {
     };
   }
 }
-
-declare module "next-auth/jwt/types" {
-  interface JWT {
-    uid: string;
-  }
-}

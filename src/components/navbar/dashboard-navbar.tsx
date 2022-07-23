@@ -3,7 +3,6 @@ import Link from "next/link";
 
 export const DashboardNavbar = () => {
   const { data: session } = useSession();
-
   return (
     <div className="flex flex-row items-center p-6">
       <div className="flew-row flex flex-1 items-center justify-start space-x-10">
@@ -21,7 +20,7 @@ export const DashboardNavbar = () => {
             </button>
           </Link>
 
-          <div className="dropdown dropdown-end">
+          <div className="dropdown-end dropdown">
             {session?.user ? (
               <label
                 tabIndex={0}
@@ -29,6 +28,10 @@ export const DashboardNavbar = () => {
               >
                 <img
                   src={session.user.image || ""}
+                  onError={(e) => {
+                    console.log("session img", session.user?.image);
+                    console.log(e);
+                  }}
                   className="mask mask-hexagon h-auto w-auto"
                 />
               </label>

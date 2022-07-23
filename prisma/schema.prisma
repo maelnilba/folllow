@@ -31,7 +31,6 @@ model Account {
     oauth_token              String? @db.Text
     user                     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-
     @@unique([provider, providerAccountId])
 }
 
@@ -52,16 +51,18 @@ model VerificationToken {
 }
 
 model User {
-    id            String     @id @default(cuid())
-    name          String?
-    email         String?    @unique
-    emailVerified DateTime?
-    image         String?
-    accounts      Account[]
-    sessions      Session[]
-    tree          Tree?
-    analytics     Analytics?
-    withdraw      Withdraw?
+    id              String           @id @default(cuid())
+    name            String?
+    email           String?          @unique
+    emailVerified   DateTime?
+    image           String?
+    accounts        Account[]
+    sessions        Session[]
+    tree            Tree?
+    analytics       Analytics?
+    withdraw        Withdraw?
+    businessAddress BusinessAddress?
+    craft           Craft?
 }
 
 model Tree {
@@ -126,4 +127,37 @@ model Click {
     element     String
 
     @@index([analyticsId])
+}
+
+model BusinessAddress {
+    id      Int     @id @default(autoincrement())
+    userId  String  @unique
+    user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+    street1 String
+    street2 String?
+    city    String
+    state   String
+    zipcode String
+    country String
+}
+
+enum Craft {
+    Comedy
+    Developer
+    Education
+    Fashion
+    Filmmaker
+    Financial
+    Freelancer
+    Gaming
+    Influencer
+    Medicine
+    Model
+    Music
+    Podcast
+    Politics
+    Tax
+    Travel
+    Writer
+    Other
 }

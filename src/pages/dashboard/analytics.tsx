@@ -1,11 +1,13 @@
 import { DashboardNavbar } from "@components/navbar/dashboard-navbar";
 import { ClicksBar } from "@components/analytics/bar";
 import { ViewAreas } from "@components/analytics/areas";
-import type { NextPage } from "next";
+import type { GetServerSideProps, NextPage } from "next";
 import Head from "next/head";
 import { useMemo } from "react";
 import { trpc } from "utils/trpc";
 import nFormatter from "@components/analytics/nFormatter";
+import { unstable_getServerSession } from "next-auth/next";
+import { authOptions } from "pages/api/auth/[...nextauth]";
 
 type AreasMap = Map<
   string,
@@ -118,6 +120,26 @@ const Index: NextPage = () => {
       </div>
     </>
   );
+};
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const session = await unstable_getServerSession(
+    context.req,
+    context.res,
+    authOptions
+  );
+  if (!session) {
+    return {
+      redirect: {
+        destination: `/sign-in`,
+        permanent: false,
+      },
+    };
+  }
+
+  return {
+    props: {},
+  };
 };
 
 export default Index;

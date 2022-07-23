@@ -1,5 +1,5 @@
 import { SocialMediaComponent } from "@components/social-medias-components";
-import { NextPage } from "next";
+import { GetServerSideProps, NextPage } from "next";
 import Head from "next/head";
 import { useSyncExternalStore } from "react";
 import { SocialMedia } from "utils/shared";
@@ -9,6 +9,8 @@ import { faBug, faMobilePhone } from "@fortawesome/free-solid-svg-icons";
 import { faWindowMaximize } from "@fortawesome/free-regular-svg-icons";
 import Link from "next/link";
 import { trpc } from "utils/trpc";
+import { unstable_getServerSession } from "next-auth/next";
+import { authOptions } from "pages/api/auth/[...nextauth]";
 
 interface treeLocalStorage {
   slug?: string | null;
@@ -89,7 +91,7 @@ const Index: NextPage = () => {
       <div className="flex h-screen flex-col items-stretch space-y-4 p-6">
         <div className="flex w-full grow flex-col items-center space-y-2">
           <Tab.Group manual>
-            <Tab.List className="tabs  tabs-boxed gap-4 drop-shadow-md">
+            <Tab.List className="tabs tabs-boxed gap-4 drop-shadow-md">
               <Tab
                 className={({ selected }) =>
                   `${selected ? "tab-active" : ""} tab gap-2
@@ -203,6 +205,26 @@ const Preview = ({ tree }: PreviewProps) => {
       </div>
     </div>
   );
+};
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const session = await unstable_getServerSession(
+    context.req,
+    context.res,
+    authOptions
+  );
+  if (!session) {
+    return {
+      redirect: {
+        destination: `/sign-in`,
+        permanent: false,
+      },
+    };
+  }
+
+  return {
+    props: {},
+  };
 };
 
 export default Index;

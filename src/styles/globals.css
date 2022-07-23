@@ -12,6 +12,6 @@
 
 @layer utilities {
   .kard {
-    @apply rounded-md border-solid border-base-300 bg-base-200;
+    @apply rounded-md border border-base-300 bg-base-200;
   }
 }

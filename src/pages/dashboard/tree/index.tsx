@@ -2,7 +2,7 @@ import { DashboardNavbar } from "@components/navbar/dashboard-navbar";
 import { faEye, faFileImage, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import type { Prisma } from "@prisma/client";
-import type { NextPage } from "next";
+import type { GetServerSideProps, NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
 import {
@@ -20,6 +20,8 @@ import { z } from "zod";
 import { useZorm } from "react-zorm";
 import ErrorLabel from "@components/error-label";
 import { Toast, ToastElement } from "@components/toast";
+import { unstable_getServerSession } from "next-auth/next";
+import { authOptions } from "pages/api/auth/[...nextauth]";
 
 interface treeLocalStorage {
   slug?: string | null;
@@ -566,11 +568,24 @@ const DaisyUIThemePreview = ({ theme }: { theme: Theme }) => {
   );
 };
 
-//   type ServerSideProps = InferGetServerSidePropsType<typeof getServerSideProps>;
-//   export async function getServerSideProps(context: GetServerSidePropsContext) {
-//     return {
-//       props: { },
-//     };
-//   }
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const session = await unstable_getServerSession(
+    context.req,
+    context.res,
+    authOptions
+  );
+  if (!session) {
+    return {
+      redirect: {
+        destination: `/sign-in`,
+        permanent: false,
+      },
+    };
+  }
+
+  return {
+    props: {},
+  };
+};
 
 export default Index;

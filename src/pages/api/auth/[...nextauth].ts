@@ -3,7 +3,6 @@ import GithubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
 import TwitterProvider from "next-auth/providers/twitter";
 import DiscordProvider from "next-auth/providers/discord";
-
 // Prisma adapter for NextAuth, optional and can be removed
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { prisma } from "../../../server/db/client";
@@ -17,7 +16,7 @@ import {
   DISCORD_CLIENT_ID,
   DISCORD_CLIENT_SECRET,
 } from "../../../../env";
-// https://github.com/ndom91/next-auth-example-sign-in-page
+
 export const authOptions: NextAuthOptions = {
   debug: true,
   pages: {
@@ -53,21 +52,28 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    session: async ({ session, token }) => {
-      if (session?.user) {
-        session.user.id = token.uid;
+    session({ session, user }) {
+      if (session.user) {
+        session.user.id = user.id;
       }
       return session;
     },
-    jwt: async ({ user, token }) => {
-      if (user) {
-        token.uid = user.id;
-      }
-      return token;
-    },
   },
-  session: {
-    strategy: "jwt",
+  events: {
+    async signIn({ user, isNewUser, profile }) {
+      if (isNewUser) return;
+      if (!profile?.image) return;
+      if (user.image === profile.image) return;
+      await prisma.user.update({
+        data: {
+          image: profile.image,
+        },
+        where: {
+          id: user.id,
+        },
+      });
+      return;
+    },
   },
 };
 

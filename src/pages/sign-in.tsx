@@ -22,11 +22,11 @@ import { unstable_getServerSession } from "next-auth/next";
 import { authOptions } from "./api/auth/[...nextauth]";
 import { BuiltInProviderType } from "next-auth/providers";
 
-const providerIcons: { [key: string]: IconDefinition } = {
-  GitHub: faGithub,
-  Google: faGoogle,
-  Twitter: faTwitter,
-  Discord: faDiscord,
+export const providerIcons: { [key: string]: IconDefinition } = {
+  github: faGithub,
+  google: faGoogle,
+  twitter: faTwitter,
+  discord: faDiscord,
 };
 
 const Index: NextPage<{
@@ -60,7 +60,8 @@ const Index: NextPage<{
                 }
               >
                 <FontAwesomeIcon
-                  icon={providerIcons[provider.name] || faDiscord}
+                  icon={providerIcons[provider.name.toLowerCase()] || faDiscord}
+                  className="text-2xl"
                 />
                 Sign in with {provider.name}
               </button>
@@ -72,7 +73,6 @@ const Index: NextPage<{
   );
 };
 
-type ServerSideProps = InferGetServerSidePropsType<typeof getServerSideProps>;
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const providers = await getProviders();
   const session = await unstable_getServerSession(
