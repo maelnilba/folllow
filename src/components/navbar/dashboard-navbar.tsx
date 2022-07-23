@@ -8,7 +8,7 @@ export const DashboardNavbar = () => {
     <div className="flex flex-row items-center p-6">
       <div className="flew-row flex flex-1 items-center justify-start space-x-10">
         <Link href="/dashboard">
-          <a className="btn rounded-full bg-slate-900 text-xl normal-case">
+          <a className="btn rounded-full bg-black text-xl normal-case text-white hover:bg-black active:bg-black">
             Folllow.
           </a>
         </Link>
@@ -21,7 +21,7 @@ export const DashboardNavbar = () => {
             </button>
           </Link>
 
-          <div className="dropdown-end dropdown">
+          <div className="dropdown dropdown-end">
             {session?.user ? (
               <label
                 tabIndex={0}

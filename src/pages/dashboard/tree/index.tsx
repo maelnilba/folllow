@@ -36,7 +36,9 @@ interface treeLocalStorage {
 }
 
 function parsePrisma<T>(json: Prisma.JsonValue): T {
+  console.log(json);
   if (typeof json === "string") {
+    console.log(json);
     return JSON.parse(json);
   } else return JSON.parse(JSON.stringify(json));
 }
@@ -75,9 +77,7 @@ const Index: NextPage = () => {
           "tree",
           JSON.stringify({
             ...data,
-            links: data?.links
-              ? parsePrisma<SocialMediaLink[]>(data?.links)
-              : ([] as SocialMediaLink[]),
+            links: data?.links || [],
           })
         );
       }
@@ -99,10 +99,7 @@ const Index: NextPage = () => {
   const toast = useRef<ToastElement | null>(null);
 
   const links = useMemo(
-    () =>
-      tree?.links
-        ? parsePrisma<SocialMediaLink[]>(tree?.links)
-        : ([] as SocialMediaLink[]),
+    () => ((tree?.links as any) || []) as SocialMediaLink[],
     [tree]
   );
 
@@ -110,7 +107,6 @@ const Index: NextPage = () => {
     customIssues: checkSlug.data?.issues,
     async onValidSubmit(e) {
       e.preventDefault();
-      // alert(JSON.stringify(e.data, null, 2));
       let imageKey: string | undefined = undefined;
 
       if (uploadImage.data !== undefined) {
@@ -535,7 +531,9 @@ const ThemePreview = ({ theme }: { theme: Theme }) => {
   return (
     <div className="w-full cursor-pointer space-y-1 bg-gradient-to-b from-base-100 via-base-200 to-base-300 p-4">
       <div className="font-bold capitalize">{theme}</div>
-      <div className="btn no-animation btn-md normal-case">Folllow.</div>
+      <div className="btn btn-primary no-animation btn-md normal-case">
+        Folllow.
+      </div>
     </div>
   );
 };

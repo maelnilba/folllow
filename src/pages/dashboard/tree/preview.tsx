@@ -5,8 +5,10 @@ import { useSyncExternalStore } from "react";
 import { SocialMedia } from "utils/shared";
 import { Tab } from "@headlessui/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faMobilePhone } from "@fortawesome/free-solid-svg-icons";
+import { faBug, faMobilePhone } from "@fortawesome/free-solid-svg-icons";
 import { faWindowMaximize } from "@fortawesome/free-regular-svg-icons";
+import Link from "next/link";
+import { trpc } from "utils/trpc";
 
 interface treeLocalStorage {
   slug?: string | null;
@@ -42,7 +44,41 @@ const Index: NextPage = () => {
   const tree: treeLocalStorage | null = treeLocalStorage
     ? JSON.parse(treeLocalStorage)
     : null;
-  if (!tree) return <div>not tree dude</div>;
+
+  const { isLoading, isError, refetch } = trpc.useQuery(["tree.get-my-tree"], {
+    onSuccess(data) {
+      if (data) {
+        window?.localStorage.setItem(
+          "tree",
+          JSON.stringify({
+            ...data,
+            links: data?.links || [],
+          })
+        );
+      }
+    },
+    refetchOnWindowFocus: false,
+    enabled: tree === null,
+  });
+
+  if (isLoading) return <div></div>;
+
+  if (!tree || isError) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center">
+        <div className="flex flex-row flex-wrap items-center justify-center gap-2">
+          <FontAwesomeIcon icon={faBug} className="text-9xl" />
+          <div className="flex flex-col text-2xl font-semibold">
+            <p>Something went wrong.</p>
+            <Link href="/dashboard" passHref>
+              <a className="btn btn-primary normal-case">Go to dashboard</a>
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
       <Head>
@@ -139,12 +175,16 @@ const Preview = ({ tree }: PreviewProps) => {
                 <div className="w-24 rounded-full bg-base-100"></div>
               </div>
             )}
-            <h1 className="text-lg font-bold">{tree.slug}</h1>
-            {tree.bio && <h2 className="text-md text-justify">{tree.bio}</h2>}
+            <div className="space-y-2 text-center">
+              <h1 className="text-lg font-bold">{tree.slug}</h1>
+              {tree.bio && (
+                <h2 className="text-md break-all text-justify">{tree.bio}</h2>
+              )}
+            </div>
             <div className="flex w-full flex-col items-center space-y-2 py-4 ">
               {tree?.links?.map((link) => (
                 <a
-                  className="btn btn-lg no-animation flex w-full normal-case"
+                  className="btn btn-primary btn-lg no-animation flex w-full normal-case"
                   key={link.id}
                   href={link.url}
                   target="_blank"

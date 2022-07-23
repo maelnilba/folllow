@@ -92,17 +92,22 @@ const Index: NextPage<ServerSideProps> = ({ tree }) => {
                 <div className="w-24 rounded-full bg-base-100"></div>
               </div>
             )}
-            <h1 className="text-lg font-bold">{tree.slug}</h1>
-            {tree.bio && <h2 className="text-md text-justify">{tree.bio}</h2>}
+            <div className="space-y-2 text-center">
+              <h1 className="text-lg font-bold">{tree.slug}</h1>
+              {tree.bio && (
+                <h2 className="text-md break-all text-justify">{tree.bio}</h2>
+              )}
+            </div>
             <div className="flex w-full flex-col items-center space-y-2 py-4 ">
               {links.map((link) => (
                 <a
-                  className="btn btn-lg flex w-full normal-case"
+                  className="btn btn-primary btn-lg flex w-full normal-case"
                   key={link.id}
                   href={link.url}
                   target="_blank"
                   rel="noreferrer"
                   onClick={(event) => {
+                    event.stopPropagation();
                     postClick.mutate({
                       slug: tree.slug,
                       element: link.media,

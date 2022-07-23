@@ -1,7 +1,7 @@
 import type { NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
-import { useMemo } from "react";
+import { useMemo, useReducer } from "react";
 import { InferQueryOutput, trpc } from "utils/trpc";
 import { z } from "zod";
 import { useZorm } from "react-zorm";
@@ -10,6 +10,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faChartSimple,
   faCircleUser,
+  faClipboardCheck,
   faLayerGroup,
   faLink,
 } from "@fortawesome/free-solid-svg-icons";
@@ -19,6 +20,8 @@ import { useRouter } from "next/router";
 import { DashboardNavbar } from "@components/navbar/dashboard-navbar";
 import ErrorLabel from "@components/error-label";
 import nFormatter from "@components/analytics/nFormatter";
+import { faClipboard } from "@fortawesome/free-regular-svg-icons";
+import { AnimatePresence, motion } from "framer-motion";
 
 const Index: NextPage = () => {
   const { data: user, isLoading: userLoading } = trpc.useQuery([
@@ -104,13 +107,13 @@ const Index: NextPage = () => {
                 <>
                   {dashboardLoading && (
                     <div className="flex flex-col py-6">
-                      <div className="flex animate-pulse flex-row flex-wrap gap-4 opacity-50">
+                      <div className="flex animate-pulse flex-col flex-wrap gap-4 opacity-50 sm:flex-row">
                         <div className="kard flex flex-1 flex-row flex-wrap items-center gap-2 p-6 pb-8 ">
                           <div className="avatar placeholder">
-                            <div className="w-24 rounded-full bg-base-100"></div>
+                            <div className="h-16 w-16 rounded-full bg-base-100 sm:h-24 sm:w-24"></div>
                           </div>
                         </div>
-                        <div className="kard flex flex-1 flex-col space-y-2 p-2 pb-8"></div>
+                        <div className="kard flex min-h-[10rem] flex-1 flex-col space-y-2 p-2 pb-8"></div>
                       </div>
                     </div>
                   )}
@@ -210,6 +213,7 @@ type DashboardTreeProps = Pick<
 >;
 
 const DashboardTree: React.FC<DashboardTreeProps> = (props) => {
+  const [hasCopy, copy] = useReducer(() => true, false);
   return (
     <div className=" kard flex flex-1 flex-row flex-wrap items-center gap-2 p-6 ">
       <div className="flex flex-1 flex-row items-center space-x-4">
@@ -225,13 +229,15 @@ const DashboardTree: React.FC<DashboardTreeProps> = (props) => {
             <div className="w-24 rounded-full bg-base-100"></div>
           </div>
         )}
-        <div>
+        <div className="max-w-[10rem]">
           <Link href="/dashboard/me">
             <a className="text-xl font-bold hover:opacity-75">
               {props.tree?.slug}
             </a>
           </Link>
-          <div>{props.tree?.bio || "No bio yet"}</div>
+          <div className="truncate break-all">
+            {props.tree?.bio || "No bio yet"}
+          </div>
         </div>
       </div>
       <div className="flex flex-row justify-center gap-2 lg:flex-col">
@@ -244,15 +250,33 @@ const DashboardTree: React.FC<DashboardTreeProps> = (props) => {
             Manage
           </a>
         </Link>
-        <Link href="/dashboard/tree" passHref>
-          <a
-            role="button"
-            className="btn btn-outline btn-sm flex-nowrap justify-start gap-2 normal-case"
-          >
-            <FontAwesomeIcon icon={faLink} />
-            Link
-          </a>
-        </Link>
+        <button
+          className="btn btn-outline btn-sm flex-nowrap justify-start gap-2 normal-case"
+          onClick={async (event) => {
+            event.stopPropagation();
+            if (typeof navigator === undefined || typeof window === undefined)
+              return;
+            if (!props.tree?.slug) return;
+            await navigator.clipboard.writeText(
+              `${window.location.origin}/${props.tree.slug}`
+            );
+            copy();
+          }}
+        >
+          <AnimatePresence key={`${hasCopy}`}>
+            <motion.div
+              key={`${hasCopy}`}
+              initial={{ opacity: hasCopy ? 0 : 1 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              <FontAwesomeIcon
+                icon={hasCopy ? faClipboardCheck : faClipboard}
+              />
+            </motion.div>
+          </AnimatePresence>
+          Copy
+        </button>
       </div>
     </div>
   );

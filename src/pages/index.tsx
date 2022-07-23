@@ -2,6 +2,7 @@ import type { NextPage } from "next";
 import Head from "next/head";
 import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
+import { AnimatePresence, motion } from "framer-motion";
 
 const Index: NextPage = () => {
   const { data: session, status } = useSession();
@@ -17,9 +18,9 @@ const Index: NextPage = () => {
         <div className="flex flex-col px-24">
           <div className="flex flex-row items-center p-6">
             <div className="flew-row flex flex-1 items-center justify-start space-x-10">
-              <div className="btn no-animation rounded-full bg-slate-900 text-2xl normal-case">
+              <a className="btn rounded-full bg-black text-xl normal-case text-white hover:bg-black active:bg-black">
                 Folllow.
-              </div>
+              </a>
               <a className="font-medium hover:cursor-pointer hover:opacity-75">
                 Features
               </a>
@@ -36,48 +37,58 @@ const Index: NextPage = () => {
                       </a>
                     </Link>
                   ) : (
-                    <div className="flex flex-row items-center space-x-8">
-                      <Link href="/dashboard" passHref>
-                        <a className=" font-medium hover:opacity-75">
-                          Dashboard
-                        </a>
-                      </Link>
-                      <div className="dropdown-end dropdown">
-                        <div className="relative h-10 w-10">
-                          <div className="absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 ">
-                            {session?.user?.image ? (
-                              <label
-                                tabIndex={0}
-                                className="avatar h-12 w-12 hover:cursor-pointer"
-                              >
-                                <img
-                                  src={session?.user.image}
-                                  className="mask mask-hexagon h-auto w-auto"
-                                />
-                              </label>
-                            ) : (
-                              <label
-                                tabIndex={0}
-                                className="avatar placeholder w-12 hover:cursor-pointer"
-                              >
-                                <div className="mask mask-hexagon w-12 rounded-full bg-base-200"></div>
-                              </label>
-                            )}
+                    <AnimatePresence>
+                      <motion.div
+                        transition={{
+                          duration: 0.25,
+                        }}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="flex flex-row items-center space-x-8"
+                      >
+                        <Link href="/dashboard" passHref>
+                          <a className=" font-medium hover:opacity-75">
+                            Dashboard
+                          </a>
+                        </Link>
+                        <div className="dropdown-end dropdown">
+                          <div className="relative h-10 w-10">
+                            <div className="absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 ">
+                              {session?.user?.image ? (
+                                <label
+                                  tabIndex={0}
+                                  className="avatar h-12 w-12 hover:cursor-pointer"
+                                >
+                                  <img
+                                    src={session?.user.image}
+                                    className="mask mask-hexagon h-auto w-auto"
+                                  />
+                                </label>
+                              ) : (
+                                <label
+                                  tabIndex={0}
+                                  className="avatar placeholder w-12 hover:cursor-pointer"
+                                >
+                                  <div className="mask mask-hexagon w-12 rounded-full bg-base-200"></div>
+                                </label>
+                              )}
+                            </div>
                           </div>
+                          <ul
+                            tabIndex={0}
+                            className="dropdown-content menu rounded-box w-52 bg-base-100 p-2 shadow"
+                          >
+                            <li role="button">
+                              <a>Settings</a>
+                            </li>
+                            <li role="button" onClick={() => signOut()}>
+                              <a>Log out</a>
+                            </li>
+                          </ul>
                         </div>
-                        <ul
-                          tabIndex={0}
-                          className="dropdown-content menu rounded-box w-52 bg-base-100 p-2 shadow"
-                        >
-                          <li role="button">
-                            <a>Settings</a>
-                          </li>
-                          <li role="button" onClick={() => signOut()}>
-                            <a>Log out</a>
-                          </li>
-                        </ul>
-                      </div>
-                    </div>
+                      </motion.div>
+                    </AnimatePresence>
                   )}
                 </div>
               )}
