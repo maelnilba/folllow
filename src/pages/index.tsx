@@ -80,7 +80,9 @@ const Index: NextPage = () => {
                             className="dropdown-content menu rounded-box w-52 bg-base-100 p-2 shadow"
                           >
                             <li role="button">
-                              <a>Settings</a>
+                              <Link href="/settings/account" passHref>
+                                <a>Settings</a>
+                              </Link>
                             </li>
                             <li role="button" onClick={() => signOut()}>
                               <a>Log out</a>

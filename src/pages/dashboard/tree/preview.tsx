@@ -2,7 +2,7 @@ import { SocialMediaComponent } from "@components/social-medias-components";
 import { GetServerSideProps, NextPage } from "next";
 import Head from "next/head";
 import { useSyncExternalStore } from "react";
-import { SocialMedia } from "utils/shared";
+import { SocialMedia } from "@shared/socialmedias";
 import { Tab } from "@headlessui/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBug, faMobilePhone } from "@fortawesome/free-solid-svg-icons";

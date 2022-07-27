@@ -1,7 +1,7 @@
 import { TRPCError } from "@trpc/server";
 import { timeFormat } from "d3-time-format";
 import { NextApiRequest } from "next";
-import { SocialMedias } from "utils/shared";
+import { SocialMedias } from "shared/socialmedias";
 import { z } from "zod";
 import { createRouter } from "../context";
 

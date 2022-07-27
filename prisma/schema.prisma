@@ -60,7 +60,7 @@ model User {
     sessions        Session[]
     tree            Tree?
     analytics       Analytics?
-    withdraw        Withdraw?
+    payment         Payment?
     businessAddress BusinessAddress?
     craft           Craft?
 }
@@ -80,13 +80,19 @@ model Tree {
     @@index([userId])
 }
 
-model Withdraw {
-    id               String  @id @default(cuid())
-    userId           String  @unique
-    user             User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-    withdraw_enabled Boolean @default(false)
+model Payment {
+    id               String          @id @default(cuid())
+    userId           String          @unique
+    user             User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+    platform         PaymentPlatform
+    access_token     String?         @db.Text
+    refresh_token    String?         @db.Text
+    platform_user_id String
+}
 
-    @@index([userId])
+enum PaymentPlatform {
+    Paypal
+    Stripe
 }
 
 model Analytics {

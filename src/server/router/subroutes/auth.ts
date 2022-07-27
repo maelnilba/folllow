@@ -19,12 +19,6 @@ export const authRouter = createRouter()
       },
     });
   })
-  .mutation("update-image", {
-    async resolve({ ctx }) {
-      console.log(ctx.session.user.image);
-      return; //
-    },
-  })
   .query("get-account", {
     async resolve({ ctx }) {
       return await ctx.prisma.account.findMany({

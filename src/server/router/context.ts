@@ -1,4 +1,5 @@
 // src/server/router/context.ts
+import stripeServer from "@shared/third-party/stripe/server";
 import * as trpc from "@trpc/server";
 import * as trpcNext from "@trpc/server/adapters/next";
 import { unstable_getServerSession as getServerSession } from "next-auth";
@@ -20,6 +21,7 @@ export const createContext = async (
     res,
     session,
     prisma,
+    stripe: stripeServer,
   };
 };
 

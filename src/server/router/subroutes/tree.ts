@@ -1,6 +1,7 @@
 import { createRouter } from "../context";
 import { z } from "zod";
-import { SocialMedias, Themes } from "../../../utils/shared";
+import { SocialMedias } from "@shared/socialmedias";
+import { Themes } from "@shared/themes";
 import { TRPCError } from "@trpc/server";
 import { createCustomIssues } from "react-zorm";
 import aws from "aws-sdk";

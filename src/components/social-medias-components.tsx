@@ -22,7 +22,7 @@ import {
 import { faLink } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { memo, useMemo } from "react";
-import { SocialMedia } from "utils/shared";
+import { SocialMedia } from "@shared/socialmedias";
 
 export type SocialMediasType = readonly {
   handle: SocialMedia;

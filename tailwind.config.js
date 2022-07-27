@@ -15,8 +15,6 @@ module.exports = {
           "50%": {
             "background-position": "100% 50%",
           },
-          // "0%, 100%": { transform: "rotate(-3deg)" },
-          // "50%": { transform: "rotate(3deg)" },
         },
       },
     },

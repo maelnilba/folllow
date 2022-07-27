@@ -8,10 +8,9 @@ import Link from "next/link";
 import {
   SocialMediaLink,
   SocialMedias,
-  Theme,
-  Themes,
   SocialMedia,
-} from "utils/shared";
+} from "@shared/socialmedias";
+import { Theme, Themes } from "@shared/themes";
 import { trpc } from "utils/trpc";
 import { useCallback, useMemo, useRef, useState } from "react";
 import DraggableList from "@components/draggable-list";

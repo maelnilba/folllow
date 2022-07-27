@@ -45,6 +45,7 @@ export const dashboardRouter = createRouter()
               slug: true,
               image: true,
               bio: true,
+              ads_enabled: true,
             },
           },
           analytics: {
@@ -65,7 +66,11 @@ export const dashboardRouter = createRouter()
               },
             },
           },
-          withdraw: true,
+          payment: {
+            select: {
+              id: true,
+            },
+          },
         },
       });
     },

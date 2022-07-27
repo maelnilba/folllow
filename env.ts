@@ -40,3 +40,7 @@ export const AWS_S3_BUCKET_NAME = env
   .get("AWS_S3_BUCKET_NAME")
   .required()
   .asString();
+export const STRIPE_CLIENT_SECRET = env
+  .get("STRIPE_CLIENT_SECRET")
+  .required()
+  .asString();

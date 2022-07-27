@@ -1,4 +1,4 @@
-import { Fragment, useCallback, useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { Combobox, Transition } from "@headlessui/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCaretDown } from "@fortawesome/free-solid-svg-icons";
@@ -6,7 +6,7 @@ import {
   SocialMediasComponents,
   SocialMediasType,
 } from "./social-medias-components";
-import { SocialMedia } from "utils/shared";
+import { SocialMedia } from "@shared/socialmedias";
 
 interface SocialMediaComboboxProps {
   name: string;

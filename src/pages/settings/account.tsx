@@ -11,6 +11,10 @@ import { unstable_getServerSession } from "next-auth/next";
 import { authOptions } from "pages/api/auth/[...nextauth]";
 import { providerIcons } from "pages/sign-in";
 import { InferQueryOutput, trpc } from "utils/trpc";
+import { CraftListbox } from "@components/listbox";
+import { useZorm } from "react-zorm";
+import { craftSchema } from "@shared/schemas/craftSchema";
+import { Stripe } from "@components/stripe";
 
 const Index: NextPage = () => {
   const { data: accounts } = trpc.useQuery(["auth.get-account"]);
@@ -83,7 +87,13 @@ type AccountProps = {
 };
 
 const Account: React.FC<AccountProps> = ({ accounts, user }) => {
-  const provider = accounts[0]?.provider;
+  const currentProvider = accounts[0]?.provider;
+  const zo = useZorm("update-craft", craftSchema, {
+    onValidSubmit(e) {
+      e.preventDefault();
+    },
+  });
+
   return (
     <div className="flex flex-col gap-2">
       <p className="text-2xl font-bold">Currents Accounts</p>
@@ -104,18 +114,18 @@ const Account: React.FC<AccountProps> = ({ accounts, user }) => {
               ></div>
             </div>
           )}
-          <div className="flex flex-row items-center gap-2 rounded-md bg-black p-1.5 text-white">
+          <div className="flex flex-row items-center gap-2 rounded-md bg-black p-1.5 px-3 text-white">
             <FontAwesomeIcon
-              icon={providerIcons[provider || 0] || fa0}
+              icon={providerIcons[currentProvider || 0] || fa0}
               className="text-lg"
             />
-            <p className="text-base font-medium">{user?.name}</p>
+            <p className="truncate text-base font-medium">{user?.name}</p>
           </div>
         </div>
         <div className="py-2">
           <button
-            className="btn btn-primary btn-xs normal-case"
-            onClick={() => signIn(provider)}
+            className="btn btn-secondary btn-xs normal-case"
+            onClick={() => signIn(currentProvider)}
           >
             Re-Sign
           </button>
@@ -123,6 +133,22 @@ const Account: React.FC<AccountProps> = ({ accounts, user }) => {
       </div>
       <div>
         <p className="text-xl font-semibold">Business Address</p>
+      </div>
+      <div>
+        <p className="text-xl font-semibold">Craft</p>
+        <div className="flex flex-row items-center gap-2">
+          <div className="flex max-w-xs grow flex-col">
+            <CraftListbox name={zo.fields.craft()} />
+          </div>
+          <div>
+            <button className="btn btn-primary btn-sm normal-case">
+              Update
+            </button>
+          </div>
+        </div>
+      </div>
+      <div>
+        <Stripe />
       </div>
     </div>
   );

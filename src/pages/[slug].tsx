@@ -4,7 +4,7 @@ import type { Prisma } from "@prisma/client";
 import type { GetServerSideProps, NextPage } from "next";
 import Head from "next/head";
 import { useEffect, useMemo, useRef } from "react";
-import type { SocialMediaLink } from "utils/shared";
+import type { SocialMediaLink } from "@shared/socialmedias";
 import { trpc } from "utils/trpc";
 import { prisma } from "../server/db/client";
 
@@ -129,6 +129,7 @@ const Index: NextPage<ServerSideProps> = ({ tree }) => {
   );
 };
 
+// TODO: Move to On demand ISR
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const {
     query: { slug },

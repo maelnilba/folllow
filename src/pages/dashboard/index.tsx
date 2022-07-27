@@ -98,7 +98,8 @@ const Index: NextPage = () => {
                       {dashboard.analytics && (
                         <DashboardAnalytics
                           analytics={dashboard.analytics}
-                          withdrawEnabled={dashboard.withdraw ? true : false}
+                          hasPaymentSet={dashboard.payment?.id ? true : false}
+                          adsEnabled={dashboard.tree.ads_enabled}
                         />
                       )}
                     </div>
@@ -290,7 +291,8 @@ type DashboardAnalytics = Pick<
 
 interface DashboardAnalyticsProps {
   analytics: DashboardAnalytics["analytics"];
-  withdrawEnabled: boolean;
+  hasPaymentSet: boolean;
+  adsEnabled: boolean;
 }
 
 const PercentChange = (originalValue: number, newValue: number) => {
@@ -419,15 +421,21 @@ const DashboardAnalytics: React.FC<DashboardAnalyticsProps> = (props) => {
 
         <div className="stat">
           <div className="stat-title font-medium">Estimated Revenues</div>
-          {props.withdrawEnabled ? (
+          {props.hasPaymentSet ? (
             <div className="stat-value text-neutral">
               <p>{estimatedRevenues.toFixed(2)}$</p>
             </div>
           ) : (
             <div className="stat-value text-red-400 hover:underline hover:opacity-75">
-              <Link href="/info/help#payment" passHref>
-                <a>Disabled</a>
-              </Link>
+              {!props.adsEnabled ? (
+                <Link href="/info/help#payment" passHref>
+                  <a>Disabled</a>
+                </Link>
+              ) : !props.hasPaymentSet ? (
+                <a className="text-sm">No payment settings</a>
+              ) : (
+                <div>Estimated</div>
+              )}
             </div>
           )}
         </div>

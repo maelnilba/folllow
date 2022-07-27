@@ -32,7 +32,7 @@ export const authOptions: NextAuthOptions = {
     }),
     GoogleProvider({
       clientId: GOOGLE_CLIENT_ID!,
-      clientSecret: GOOGLE_CLIENT_SECRET!,
+      clientSecret: GOOGLE_CLIENT_SECRET,
       authorization: {
         params: {
           prompt: "consent",
@@ -42,13 +42,13 @@ export const authOptions: NextAuthOptions = {
       },
     }),
     TwitterProvider({
-      clientId: TWITTER_CLIENT_ID!,
-      clientSecret: TWITTER_CLIENT_SECRET!,
+      clientId: TWITTER_CLIENT_ID,
+      clientSecret: TWITTER_CLIENT_SECRET,
       version: "2.0",
     }),
     DiscordProvider({
-      clientId: DISCORD_CLIENT_ID!,
-      clientSecret: DISCORD_CLIENT_SECRET!,
+      clientId: DISCORD_CLIENT_ID,
+      clientSecret: DISCORD_CLIENT_SECRET,
     }),
   ],
   callbacks: {
@@ -66,7 +66,9 @@ export const authOptions: NextAuthOptions = {
       if (user.image === profile.image) return;
       await prisma.user.update({
         data: {
-          image: profile.image,
+          image: profile.image.includes("twimg")
+            ? profile.image.replace("normal", "200x200")
+            : profile.image,
         },
         where: {
           id: user.id,
