@@ -148,7 +148,7 @@ interface SocialMediaIconProps {
   className?: string;
   iconClassName?: string;
 }
-export const SocialMediaComponent = memo((props: SocialMediaIconProps) => {
+const SocialMediaComponent = (props: SocialMediaIconProps) => {
   const media = useMemo(
     () =>
       SocialMediasComponents.find((media) => media.handle === props.media) || {
@@ -164,4 +164,6 @@ export const SocialMediaComponent = memo((props: SocialMediaIconProps) => {
       <p>{media.name}</p>
     </div>
   );
-});
+};
+
+export const MemoizedSocialMediaComponent = memo(SocialMediaComponent);

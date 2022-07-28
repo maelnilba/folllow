@@ -1,4 +1,4 @@
-import { SocialMediaComponent } from "@components/social-medias-components";
+import { MemoizedSocialMediaComponent } from "@components/social-medias-components";
 import type { NextRequest } from "next/server";
 import type { Prisma } from "@prisma/client";
 import type { GetServerSideProps, NextPage } from "next";
@@ -114,7 +114,7 @@ const Index: NextPage<ServerSideProps> = ({ tree }) => {
                     });
                   }}
                 >
-                  <SocialMediaComponent
+                  <MemoizedSocialMediaComponent
                     media={link.media}
                     className="flew-row relative flex w-full items-center justify-center font-light"
                     iconClassName="absolute left-0 text-2xl"

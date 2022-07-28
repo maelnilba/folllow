@@ -80,3 +80,5 @@ export const Toast = memo(
     );
   })
 );
+
+Toast.displayName = "toast";
