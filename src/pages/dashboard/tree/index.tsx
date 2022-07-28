@@ -146,6 +146,7 @@ const Index: NextPage = () => {
                 bio: data.bio,
                 slug: data.slug,
                 image: data.image,
+                ads_enabled: data.ads_enabled,
               },
             }));
 
@@ -157,8 +158,6 @@ const Index: NextPage = () => {
       );
     },
   });
-
-  // (window as any).zo = zo;
 
   const treeStorage = useCallback(
     (callback: (storage: treeLocalStorage) => treeLocalStorage): void => {
@@ -218,7 +217,7 @@ const Index: NextPage = () => {
           </div>
         </div>
       </Toast>
-      <div className="flex min-h-screen flex-col">
+      <div className="flex min-h-screen flex-col pb-20">
         <div className="flex flex-col space-y-4 px-24">
           <DashboardNavbar />
           <main>

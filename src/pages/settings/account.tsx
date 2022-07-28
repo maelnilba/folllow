@@ -66,7 +66,11 @@ const Index: NextPage = () => {
                       <Account accounts={accounts} user={session?.user} />
                     )}
                   </Tab.Panel>
-                  <Tab.Panel className="kard p-6">Content 2</Tab.Panel>
+                  <Tab.Panel className="kard p-6">
+                    <div className="flex flex-col gap-2">
+                      <p className="text-2xl font-bold">Work In Progress.</p>
+                    </div>
+                  </Tab.Panel>
                 </Tab.Panels>
               </div>
             </Tab.Group>
@@ -131,7 +135,7 @@ const Account: React.FC<AccountProps> = ({ accounts, user }) => {
           </button>
         </div>
       </div>
-      <div>
+      {/* <div>
         <p className="text-xl font-semibold">Business Address</p>
       </div>
       <div>
@@ -149,7 +153,7 @@ const Account: React.FC<AccountProps> = ({ accounts, user }) => {
       </div>
       <div>
         <Stripe />
-      </div>
+      </div> */}
     </div>
   );
 };

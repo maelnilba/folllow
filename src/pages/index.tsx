@@ -97,7 +97,7 @@ const Index: NextPage = () => {
             </div>
           </div>
         </div>
-        <div className="hero bg-base-200">
+        <div className="hero grow bg-base-100">
           <div className="hero-content text-center">
             <div className="max-w-xl">
               <h1 className="w-full animate-bg-linear rounded-lg bg-gradient-to-r from-green-400 via-pink-500 to-blue-500 bg-[length:400%] bg-clip-text text-8xl font-extrabold  text-transparent">
@@ -107,9 +107,6 @@ const Index: NextPage = () => {
                 Because bad typos can happen{" "}
                 <span className="text-2xl">😮‍💨</span>
               </p>
-              <button className="btn btn-primary normal-case">
-                Get Started
-              </button>
             </div>
           </div>
         </div>

@@ -9,6 +9,7 @@ import { useZorm } from "react-zorm";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faChartSimple,
+  faChevronRight,
   faCircleUser,
   faClipboardCheck,
   faLayerGroup,
@@ -432,7 +433,10 @@ const DashboardAnalytics: React.FC<DashboardAnalyticsProps> = (props) => {
                   <a>Disabled</a>
                 </Link>
               ) : !props.hasPaymentSet ? (
-                <a className="text-sm">No payment settings</a>
+                <a className="flex cursor-pointer items-center gap-2 text-sm">
+                  Enable payment settings
+                  <FontAwesomeIcon icon={faChevronRight} className="text-xs" />
+                </a>
               ) : (
                 <div>Estimated</div>
               )}

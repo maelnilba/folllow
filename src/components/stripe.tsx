@@ -11,7 +11,6 @@
 // };
 
 import stripeClient from "@shared/third-party/stripe/client";
-import Link from "next/link";
 import { useRouter } from "next/router";
 import { trpc } from "utils/trpc";
 
@@ -40,7 +39,7 @@ export const Stripe: React.FC = () => {
   };
   return (
     <button
-      className="btn btn-primary normal-case"
+      className="btn btn-primary btn-sm normal-case"
       onClick={(event) => {
         event.stopPropagation();
         handleSubmit();
